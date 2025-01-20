@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.RestController
 class MemberController(
     private val memberService: MemberService,
 ) {
-
     @PostMapping("/signup")
-    fun signUp(@RequestBody joinRequest: JoinRequest): JoinResponse {
+    fun signUp(
+        @RequestBody joinRequest: JoinRequest,
+    ): JoinResponse {
         return memberService.join(joinRequest.toDto())
     }
 }

@@ -10,9 +10,10 @@ data class JoinRequest(
     val role: Role,
 )
 
-fun JoinRequest.toDto() = JoinRequestDto(
-    email = email,
-    password = password,
-    name = name,
-    role = role
-)
+fun JoinRequest.toDto() =
+    JoinRequestDto(
+        email = email,
+        password = password,
+        name = name,
+        role = role
+    )

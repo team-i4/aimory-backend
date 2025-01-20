@@ -10,9 +10,10 @@ data class JoinResponse(
     val role: Role,
 )
 
-fun Member.toJoinResponse() = JoinResponse(
-    id = id,
-    name = name,
-    email = email,
-    role = role
-)
+fun Member.toJoinResponse() =
+    JoinResponse(
+        id = id,
+        name = name,
+        email = email,
+        role = role
+    )

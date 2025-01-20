@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional
 class MemberService(
     private val memberRepository: MemberRepository,
 ) {
-
     @Transactional
     fun join(joinRequestDto: JoinRequestDto): JoinResponse {
         memberRepository.findByEmail(joinRequestDto.email)?.let {
