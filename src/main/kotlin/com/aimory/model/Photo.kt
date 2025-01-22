@@ -4,16 +4,17 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "photo")
-data class Photo(
+class Photo(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0,
+    val id: Long = 0,
 
     @Column(name = "image_url", nullable = false)
-    var imageUrl: String = "",
+    var imageUrl: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "child_id", nullable = false)
     var child: Child
-)
-
+) {
+    constructor(imageUrl: String, child: Child) : this(0, imageUrl, child)
+}
