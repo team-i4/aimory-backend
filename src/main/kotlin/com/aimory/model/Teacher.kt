@@ -10,10 +10,12 @@ import jakarta.persistence.Table
 @Table(name = "teacher")
 @DiscriminatorValue("TEACHER")
 class Teacher(
+    centerId: Long,
     name: String,
     email: String,
     password: String,
 ) : Member(
+    centerId,
     name,
     email,
     password,

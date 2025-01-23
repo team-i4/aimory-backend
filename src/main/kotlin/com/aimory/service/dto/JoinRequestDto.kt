@@ -6,6 +6,7 @@ import com.aimory.model.Parent
 import com.aimory.model.Teacher
 
 class JoinRequestDto(
+    val centerId: Long,
     val email: String,
     val password: String,
     val name: String,
@@ -16,12 +17,14 @@ fun JoinRequestDto.toEntity(): Member {
     val member =
         if (role == Role.TEACHER) {
             Teacher(
+                centerId = centerId,
                 email = email,
                 password = password,
                 name = name
             )
         } else {
             Parent(
+                centerId = centerId,
                 email = email,
                 password = password,
                 name = name
