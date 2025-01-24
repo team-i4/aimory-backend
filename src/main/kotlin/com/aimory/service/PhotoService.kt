@@ -4,6 +4,9 @@ import com.aimory.controller.dto.PhotoAlbumResponse
 import com.aimory.controller.dto.PhotoResponse
 import com.aimory.controller.dto.toPhotoAlbumResponse
 import com.aimory.controller.dto.toPhotoResponse
+import com.aimory.exception.ChildNotFoundException
+import com.aimory.exception.InvalidDeleteTypeException
+import com.aimory.exception.PhotoNotFoundException
 import com.aimory.model.Photo
 import com.aimory.repository.ChildRepository
 import com.aimory.repository.PhotoRepository
@@ -21,7 +24,7 @@ class PhotoService(
     @Transactional
     fun createPhotos(files: List<MultipartFile>, childId: Long): List<Photo> {
         val child = childRepository.findById(childId).orElseThrow {
-            IllegalArgumentException("해당 원아를 찾을 수 없습니다.")
+            ChildNotFoundException()
         }
 
         val photos = files.map { file ->
@@ -46,7 +49,7 @@ class PhotoService(
 
     fun getPhotoById(photoId: Long): PhotoResponse {
         val photo = photoRepository.findById(photoId)
-            .orElseThrow { IllegalArgumentException("해당 사진이 존재하지 않습니다.") }
+            .orElseThrow { PhotoNotFoundException() }
         return photo.toPhotoResponse()
     }
 
@@ -72,7 +75,7 @@ class PhotoService(
             "photo" -> photoRepository.deleteAllById(ids)
             "child" -> ids.forEach { photoRepository.deleteAllByChildId(it) }
             "all" -> photoRepository.deleteAll()
-            else -> throw IllegalArgumentException("올바른 삭제 타입이 아닙니다.")
+            else -> throw InvalidDeleteTypeException()
         }
     }
 }

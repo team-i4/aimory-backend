@@ -5,6 +5,8 @@ import com.aimory.controller.dto.PhotoListResponse
 import com.aimory.service.dto.PhotoDeleteRequest
 import com.aimory.controller.dto.PhotoResponse
 import com.aimory.controller.dto.toPhotoResponse
+import com.aimory.exception.InvalidChildIdException
+import com.aimory.exception.InvalidPhotoUploadException
 import com.aimory.service.PhotoService
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -20,8 +22,8 @@ class PhotoController(
         @RequestParam("files") files: List<MultipartFile>,
         @RequestParam("childId") childId: Long
     ): PhotoListResponse {
-        require(files.isNotEmpty()) { "업로드할 파일이 없습니다." }
-        require(childId > 0) { "올바른 원아 ID를 입력하세요." }
+        if (files.isEmpty()) throw InvalidPhotoUploadException()
+        if (childId <= 0) throw InvalidChildIdException()
 
         val photos = photoService.createPhotos(files, childId)
         val photoResponses = photos.map { it.toPhotoResponse() }
