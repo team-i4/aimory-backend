@@ -1,4 +1,4 @@
-package com.aimory.service.dto
+package com.aimory.controller.dto
 
 data class PhotoDeleteRequest(
     val type: String,

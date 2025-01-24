@@ -1,13 +1,13 @@
 package com.aimory.controller
 
 import com.aimory.controller.dto.PhotoAlbumResponse
+import com.aimory.controller.dto.PhotoDeleteRequest
 import com.aimory.controller.dto.PhotoListResponse
 import com.aimory.controller.dto.PhotoResponse
 import com.aimory.controller.dto.toPhotoResponse
 import com.aimory.exception.InvalidChildIdException
 import com.aimory.exception.InvalidPhotoUploadException
 import com.aimory.service.PhotoService
-import com.aimory.service.dto.PhotoDeleteRequest
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
