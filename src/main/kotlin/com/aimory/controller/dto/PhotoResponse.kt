@@ -4,19 +4,14 @@ import com.aimory.model.Photo
 
 data class PhotoResponse(
     val photoId: Long,
-//    val name: String,
     val imageUrl: String,
-    val childId: Long,
-    val photoCount: Int
-
+    val childId: Long
 )
 
-fun Photo.toPhotoResponse(photoCount: Int): PhotoResponse {
+fun Photo.toPhotoResponse(): PhotoResponse {
     return PhotoResponse(
         photoId = this.id,
-//        name = this.child.name,
         imageUrl = this.imageUrl,
-        childId = this.child.id,
-        photoCount = photoCount
+        childId = this.child.id
     )
 }

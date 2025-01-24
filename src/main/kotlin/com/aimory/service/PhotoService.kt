@@ -32,39 +32,28 @@ class PhotoService(
     fun getPhotoAlbums(): List<PhotoAlbumResponse> {
         val photos = photoRepository.findAll()
 
-        val allPhotos = photos.map { it.imageUrl }
-        val allPhotoAlbum = PhotoAlbumResponse(
-            childId = 0,
-//            name = "전체",
-            photoCount = allPhotos.size,
-            photos = allPhotos,
-            profileImageUrl = ""    // 전체 사진 묶음에 대한 대표 이미지 필요
-        )
+        val allPhotoAlbum = photos.toPhotoAlbumResponse(childId = 0, profileImageUrl = "")
 
         val groupedPhotos = photos.groupBy { it.child }
             .map { (child, childPhotos) ->
-                PhotoAlbumResponse(
-                    childId = child.id,
-//                    name = child.name,
-                    photoCount = childPhotos.size,
-                    photos = childPhotos.map { it.imageUrl },
-                    profileImageUrl = child.profileImageUrl
-                )
+                childPhotos.toPhotoAlbumResponse(child.id, child.profileImageUrl)
             }
 
         return listOf(allPhotoAlbum) + groupedPhotos
     }
 
-    fun getPhotoById(photoId: Long): Photo {
-        return photoRepository.findById(photoId)
+
+    fun getPhotoById(photoId: Long): PhotoResponse {
+        val photo = photoRepository.findById(photoId)
             .orElseThrow { IllegalArgumentException("해당 사진이 존재하지 않습니다.") }
+        return photo.toPhotoResponse()
     }
 
     fun getAllPhotos(): List<PhotoResponse> {
         val photos = photoRepository.findAll()
         return photos.map { photo ->
             val photoCount = photoRepository.countByChildId(photo.child.id)
-            photo.toPhotoResponse(photoCount)
+            photo.toPhotoResponse()
         }
     }
 
@@ -72,9 +61,10 @@ class PhotoService(
         val photos = photoRepository.findByChildId(childId)
         val photoCount = photoRepository.countByChildId(childId)
         return photos.map { photo ->
-            photo.toPhotoResponse(photoCount)
+            photo.toPhotoResponse()
         }
     }
+
     @Transactional
     fun deletePhotosByType(type: String, ids: List<Long>) {
         when (type) {
