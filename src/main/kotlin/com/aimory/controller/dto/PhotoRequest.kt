@@ -5,7 +5,7 @@ import com.aimory.model.Photo
 
 data class PhotoRequest(
     val imageUrl: String,
-    val childId: Long
+    val childId: Long,
 )
 
 fun PhotoRequest.toEntity(child: Child) =

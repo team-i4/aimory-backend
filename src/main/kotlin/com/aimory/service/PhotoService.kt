@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile
 @Transactional(readOnly = true)
 class PhotoService(
     private val photoRepository: PhotoRepository,
-    private val childRepository: ChildRepository
+    private val childRepository: ChildRepository,
 ) {
 
     @Transactional
