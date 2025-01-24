@@ -12,11 +12,13 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 
 @Service
+@Transactional(readOnly = true)
 class PhotoService(
     private val photoRepository: PhotoRepository,
     private val childRepository: ChildRepository
 ) {
 
+    @Transactional
     fun createPhotos(files: List<MultipartFile>, childId: Long): List<Photo> {
         val child = childRepository.findById(childId).orElseThrow {
             IllegalArgumentException("해당 원아를 찾을 수 없습니다.")
@@ -41,7 +43,6 @@ class PhotoService(
 
         return listOf(allPhotoAlbum) + groupedPhotos
     }
-
 
     fun getPhotoById(photoId: Long): PhotoResponse {
         val photo = photoRepository.findById(photoId)
