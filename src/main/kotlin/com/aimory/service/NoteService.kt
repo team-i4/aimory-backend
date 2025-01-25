@@ -6,10 +6,11 @@ import com.aimory.service.dto.NoteRequestDto
 import com.aimory.service.dto.NoteResponseDto
 import com.aimory.service.dto.toEntity
 import com.aimory.service.dto.toResponseDto
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class NoteService(
     private val noteRepository: NoteRepository,
 ) {
@@ -45,6 +46,22 @@ class NoteService(
             .orElseThrow {
                 NoteNotFoundException()
             }
+        return note.toResponseDto()
+    }
+
+    /**
+     * 알림장 수정
+     */
+    @Transactional
+    fun updateNote(
+        noteId: Long,
+        noteRequestDto: NoteRequestDto,
+    ): NoteResponseDto {
+        val note = noteRepository.findById(noteId)
+            .orElseThrow {
+                NoteNotFoundException()
+            }
+        note.update(noteRequestDto)
         return note.toResponseDto()
     }
 }

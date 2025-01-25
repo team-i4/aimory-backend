@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
@@ -53,6 +54,19 @@ class NoteController(
         @PathVariable noteId: Long,
     ): NoteResponse {
         val noteDto = noteService.getDetailNote(noteId)
+        return noteDto.toResponse()
+    }
+
+    /**
+     * 알림장 수정
+     */
+    @PutMapping("/notes/{noteId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun updateNote(
+        @PathVariable noteId: Long,
+        @RequestBody noteRequest: NoteRequest,
+    ): NoteResponse {
+        val noteDto = noteService.updateNote(noteId, noteRequest.toRequestDto())
         return noteDto.toResponse()
     }
 }

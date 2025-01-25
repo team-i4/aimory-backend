@@ -1,5 +1,6 @@
 package com.aimory.model
 
+import com.aimory.service.dto.NoteRequestDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -33,4 +34,10 @@ class Note(
     @Column(name = "updated_at", nullable = false)
     var updatedAt: LocalDate = createdAt
         protected set
+
+    fun update(noteRequestDto: NoteRequestDto) {
+        this.content = noteRequestDto.content
+        this.date = noteRequestDto.date
+        this.updatedAt = LocalDate.now()
+    }
 }
