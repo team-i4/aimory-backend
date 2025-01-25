@@ -12,6 +12,10 @@ data class NoticeResponse(
     val updatedAt: LocalDate,
 )
 
+data class NoticeListResponse(
+    val notices: List<NoticeResponse>,
+)
+
 fun NoticeResponseDto.toResponse() = NoticeResponse(
     id = id,
     title = title,

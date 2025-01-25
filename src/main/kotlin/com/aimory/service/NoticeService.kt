@@ -23,6 +23,17 @@ class NoticeService(
     }
 
     /**
+     * 공지사항 전제 조회
+     */
+    fun getAllNotices():
+        List<NoticeResponseDto> {
+        val noticeList = noticeRepository.findAll()
+        return noticeList.map {
+            it.toResponseDto()
+        }
+    }
+
+    /**
      * 공지사항 단일 조회
      */
     fun getDetailNotice(

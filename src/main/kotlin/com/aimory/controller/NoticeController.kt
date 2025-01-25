@@ -1,6 +1,7 @@
 package com.aimory.controller
 
 import com.aimory.controller.dto.NoticeCreateRequest
+import com.aimory.controller.dto.NoticeListResponse
 import com.aimory.controller.dto.NoticeResponse
 import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
@@ -27,6 +28,20 @@ class NoticeController(
     ): NoticeResponse {
         val noticeDto = noticeService.createNotice(noticeCreateRequest.toRequestDto())
         return noticeDto.toResponse()
+    }
+
+    /**
+     * 공지사항 전체 조회
+     */
+    @GetMapping("/notices")
+    @ResponseStatus(HttpStatus.OK)
+    fun getAllNotices():
+        NoticeListResponse {
+        val noticeListDto = noticeService.getAllNotices()
+        val noticeListResponse = noticeListDto.map {
+            it.toResponse()
+        }
+        return NoticeListResponse(notices = noticeListResponse)
     }
 
     /**
