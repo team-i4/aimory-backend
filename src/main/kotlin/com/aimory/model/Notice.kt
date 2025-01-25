@@ -1,6 +1,6 @@
 package com.aimory.model
 
-import com.aimory.service.dto.NoticeUpdateRequestDto
+import com.aimory.service.dto.NoticeRequestDto
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -46,10 +46,10 @@ class Notice(
     var noticeImages: MutableList<NoticeImage> = mutableListOf()
         protected set
 
-    fun update(noticeUpdateRequestDto: NoticeUpdateRequestDto) {
-        this.title = noticeUpdateRequestDto.title
-        this.content = noticeUpdateRequestDto.content
-        this.date = noticeUpdateRequestDto.date
+    fun update(noticeRequestDto: NoticeRequestDto) {
+        this.title = noticeRequestDto.title
+        this.content = noticeRequestDto.content
+        this.date = noticeRequestDto.date
         this.updatedAt = LocalDate.now()
     }
 }

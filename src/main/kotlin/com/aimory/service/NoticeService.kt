@@ -3,9 +3,8 @@ package com.aimory.service
 import com.aimory.exception.NoticeNotFoundException
 import com.aimory.repository.NoticeRepository
 import com.aimory.service.dto.DeleteResponseDto
-import com.aimory.service.dto.NoticeCreateRequestDto
+import com.aimory.service.dto.NoticeRequestDto
 import com.aimory.service.dto.NoticeResponseDto
-import com.aimory.service.dto.NoticeUpdateRequestDto
 import com.aimory.service.dto.toEntity
 import com.aimory.service.dto.toResponseDto
 import org.springframework.stereotype.Service
@@ -21,7 +20,7 @@ class NoticeService(
      */
     @Transactional
     fun createNotice(
-        noticeCreateRequestDto: NoticeCreateRequestDto,
+        noticeCreateRequestDto: NoticeRequestDto,
     ): NoticeResponseDto {
         val notice = noticeRepository.save(noticeCreateRequestDto.toEntity())
         return notice.toResponseDto()
@@ -57,13 +56,13 @@ class NoticeService(
     @Transactional
     fun updateNotice(
         noticeId: Long,
-        noticeUpdateRequestDto: NoticeUpdateRequestDto,
+        noticeRequestDto: NoticeRequestDto,
     ): NoticeResponseDto {
         val notice = noticeRepository.findById(noticeId)
             .orElseThrow {
                 NoticeNotFoundException()
             }
-        notice.update(noticeUpdateRequestDto)
+        notice.update(noticeRequestDto)
         return notice.toResponseDto()
     }
 

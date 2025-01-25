@@ -1,10 +1,9 @@
 package com.aimory.controller
 
-import com.aimory.controller.dto.NoticeCreateRequest
+import com.aimory.controller.dto.NoticeRequest
 import com.aimory.controller.dto.NoticeDeleteRequest
 import com.aimory.controller.dto.NoticeListResponse
 import com.aimory.controller.dto.NoticeResponse
-import com.aimory.controller.dto.NoticeUpdateRequest
 import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
 import com.aimory.service.NoticeService
@@ -33,9 +32,9 @@ class NoticeController(
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "공지사항 생성 API")
     fun createNotice(
-        @RequestBody noticeCreateRequest: NoticeCreateRequest,
+        @RequestBody noticeRequest: NoticeRequest,
     ): NoticeResponse {
-        val noticeDto = noticeService.createNotice(noticeCreateRequest.toRequestDto())
+        val noticeDto = noticeService.createNotice(noticeRequest.toRequestDto())
         return noticeDto.toResponse()
     }
 
@@ -75,9 +74,9 @@ class NoticeController(
     @Operation(summary = "공지사항 수정 API")
     fun updateNotice(
         @PathVariable noticeId: Long,
-        @RequestBody noticeUpdateRequest: NoticeUpdateRequest,
+        @RequestBody noticeRequest: NoticeRequest,
     ): NoticeResponse {
-        val noticeDto = noticeService.updateNotice(noticeId, noticeUpdateRequest.toRequestDto())
+        val noticeDto = noticeService.updateNotice(noticeId, noticeRequest.toRequestDto())
         return noticeDto.toResponse()
     }
 
