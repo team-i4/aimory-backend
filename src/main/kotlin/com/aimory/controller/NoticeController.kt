@@ -9,6 +9,8 @@ import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
 import com.aimory.service.NoticeService
 import com.aimory.service.dto.DeleteResponseDto
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Tag(name = "notices", description = "공지사항 API")
 class NoticeController(
     private val noticeService: NoticeService,
 ) {
@@ -28,6 +31,7 @@ class NoticeController(
      */
     @PostMapping("/notices")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "공지사항 생성 API")
     fun createNotice(
         @RequestBody noticeCreateRequest: NoticeCreateRequest,
     ): NoticeResponse {
@@ -40,6 +44,7 @@ class NoticeController(
      */
     @GetMapping("/notices")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "공지사항 전체 조회 API")
     fun getAllNotices():
         NoticeListResponse {
         val noticeListDto = noticeService.getAllNotices()
@@ -54,6 +59,7 @@ class NoticeController(
      */
     @GetMapping("/notices/{noticeId}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "공지사항 단일 조회 API")
     fun getDetailNotice(
         @PathVariable noticeId: Long,
     ): NoticeResponse {
@@ -66,6 +72,7 @@ class NoticeController(
      */
     @PutMapping("/notices/{noticeId}")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "공지사항 수정 API")
     fun updateNotice(
         @PathVariable noticeId: Long,
         @RequestBody noticeUpdateRequest: NoticeUpdateRequest,
@@ -79,6 +86,7 @@ class NoticeController(
      */
     @DeleteMapping("/notices")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "공지사항 삭제 API")
     fun deleteNotices(
         @RequestBody noticeDeleteRequest: NoticeDeleteRequest,
     ): DeleteResponseDto {
