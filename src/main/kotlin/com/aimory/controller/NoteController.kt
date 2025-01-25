@@ -1,12 +1,15 @@
 package com.aimory.controller
 
+import com.aimory.controller.dto.NoteDeleteRequest
 import com.aimory.controller.dto.NoteListResponse
 import com.aimory.controller.dto.NoteRequest
 import com.aimory.controller.dto.NoteResponse
 import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
 import com.aimory.service.NoteService
+import com.aimory.service.dto.DeleteResponseDto
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -68,5 +71,16 @@ class NoteController(
     ): NoteResponse {
         val noteDto = noteService.updateNote(noteId, noteRequest.toRequestDto())
         return noteDto.toResponse()
+    }
+
+    /**
+     * 알림장 삭제
+     */
+    @DeleteMapping("/notes")
+    @ResponseStatus(HttpStatus.OK)
+    fun deleteNotes(
+        @RequestBody noteDeleteRequest: NoteDeleteRequest,
+    ): DeleteResponseDto {
+        return noteService.deleteNotes(noteDeleteRequest.data)
     }
 }

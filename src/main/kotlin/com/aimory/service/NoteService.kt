@@ -2,6 +2,7 @@ package com.aimory.service
 
 import com.aimory.exception.NoteNotFoundException
 import com.aimory.repository.NoteRepository
+import com.aimory.service.dto.DeleteResponseDto
 import com.aimory.service.dto.NoteRequestDto
 import com.aimory.service.dto.NoteResponseDto
 import com.aimory.service.dto.toEntity
@@ -63,5 +64,21 @@ class NoteService(
             }
         note.update(noteRequestDto)
         return note.toResponseDto()
+    }
+
+    /**
+     * 알림장 삭제
+     */
+    @Transactional
+    fun deleteNotes(
+        noteIdList: List<Long>,
+    ): DeleteResponseDto {
+        noteIdList.forEach {
+            val note = noteRepository.findById(it).orElseThrow {
+                NoteNotFoundException()
+            }
+            noteRepository.deleteById(note.id)
+        }
+        return DeleteResponseDto("성공적으로 삭제되었습니다.")
     }
 }
