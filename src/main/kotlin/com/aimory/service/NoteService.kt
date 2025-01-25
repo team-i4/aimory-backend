@@ -1,5 +1,6 @@
 package com.aimory.service
 
+import com.aimory.exception.NoteNotFoundException
 import com.aimory.repository.NoteRepository
 import com.aimory.service.dto.NoteRequestDto
 import com.aimory.service.dto.NoteResponseDto
@@ -32,5 +33,18 @@ class NoteService(
         return noteList.map {
             it.toResponseDto()
         }
+    }
+
+    /**
+     * 알림장 단일 조회
+     */
+    fun getDetailNote(
+        noteId: Long,
+    ): NoteResponseDto {
+        val note = noteRepository.findById(noteId)
+            .orElseThrow {
+                NoteNotFoundException()
+            }
+        return note.toResponseDto()
     }
 }
