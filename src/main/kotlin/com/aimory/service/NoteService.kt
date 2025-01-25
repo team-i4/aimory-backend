@@ -22,4 +22,15 @@ class NoteService(
         val note = noteRepository.save(noteRequestDto.toEntity())
         return note.toResponseDto()
     }
+
+    /**
+     * 알림장 전체 조회
+     */
+    fun getAllNotes():
+        List<NoteResponseDto> {
+        val noteList = noteRepository.findAll()
+        return noteList.map {
+            it.toResponseDto()
+        }
+    }
 }

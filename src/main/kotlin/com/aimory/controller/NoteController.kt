@@ -1,11 +1,13 @@
 package com.aimory.controller
 
+import com.aimory.controller.dto.NoteListResponse
 import com.aimory.controller.dto.NoteRequest
 import com.aimory.controller.dto.NoteResponse
 import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
 import com.aimory.service.NoteService
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -18,12 +20,26 @@ class NoteController(
     /**
      * 알림장 생성
      */
-    @PostMapping("notes")
+    @PostMapping("/notes")
     @ResponseStatus(HttpStatus.CREATED)
     fun createNote(
         @RequestBody noteRequest: NoteRequest,
     ): NoteResponse {
         val noteDto = noteService.createNote(noteRequest.toRequestDto())
         return noteDto.toResponse()
+    }
+
+    /**
+     * 알림장 전체 조회
+     */
+    @GetMapping("/notes")
+    @ResponseStatus(HttpStatus.OK)
+    fun getAllNotes():
+        NoteListResponse {
+        val noteListDto = noteService.getAllNotes()
+        val noteListResponse = noteListDto.map {
+            it.toResponse()
+        }
+        return NoteListResponse(notes = noteListResponse)
     }
 }
