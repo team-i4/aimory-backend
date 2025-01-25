@@ -8,6 +8,8 @@ import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
 import com.aimory.service.NoteService
 import com.aimory.service.dto.DeleteResponseDto
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Tag(name = "notes", description = "알림장 API")
 class NoteController(
     private val noteService: NoteService,
 ) {
@@ -27,6 +30,7 @@ class NoteController(
      */
     @PostMapping("/notes")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "알림장 생성 API")
     fun createNote(
         @RequestBody noteRequest: NoteRequest,
     ): NoteResponse {
@@ -39,6 +43,7 @@ class NoteController(
      */
     @GetMapping("/notes")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "알림장 전체 조회 API")
     fun getAllNotes():
         NoteListResponse {
         val noteListDto = noteService.getAllNotes()
@@ -53,6 +58,7 @@ class NoteController(
      */
     @GetMapping("/notes/{noteId}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "알림장 단일 조회 API")
     fun getDetailNote(
         @PathVariable noteId: Long,
     ): NoteResponse {
@@ -65,6 +71,7 @@ class NoteController(
      */
     @PutMapping("/notes/{noteId}")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "알림장 수정 API")
     fun updateNote(
         @PathVariable noteId: Long,
         @RequestBody noteRequest: NoteRequest,
@@ -78,6 +85,7 @@ class NoteController(
      */
     @DeleteMapping("/notes")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "알림장 삭제 API")
     fun deleteNotes(
         @RequestBody noteDeleteRequest: NoteDeleteRequest,
     ): DeleteResponseDto {
