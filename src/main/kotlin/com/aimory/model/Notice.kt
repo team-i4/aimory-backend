@@ -50,5 +50,6 @@ class Notice(
         this.title = noticeUpdateRequestDto.title
         this.content = noticeUpdateRequestDto.content
         this.date = noticeUpdateRequestDto.date
+        this.updatedAt = LocalDate.now()
     }
 }
