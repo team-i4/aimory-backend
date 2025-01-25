@@ -6,6 +6,8 @@ import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
 import com.aimory.service.NoticeService
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -20,8 +22,22 @@ class NoticeController(
      */
     @PostMapping("/notices")
     @ResponseStatus(HttpStatus.CREATED)
-    fun createNotice(@RequestBody noticeCreateRequest: NoticeCreateRequest): NoticeResponse {
+    fun createNotice(
+        @RequestBody noticeCreateRequest: NoticeCreateRequest,
+    ): NoticeResponse {
         val noticeDto = noticeService.createNotice(noticeCreateRequest.toRequestDto())
+        return noticeDto.toResponse()
+    }
+
+    /**
+     * 공지사항 단일 조회
+     */
+    @GetMapping("/notices/{noticeId}")
+    @ResponseStatus(HttpStatus.OK)
+    fun getDetailNotice(
+        @PathVariable noticeId: Long,
+    ): NoticeResponse {
+        val noticeDto = noticeService.getDetailNotice(noticeId)
         return noticeDto.toResponse()
     }
 }
