@@ -5,7 +5,6 @@ import com.aimory.controller.dto.PhotoResponse
 import com.aimory.controller.dto.toPhotoAlbumResponse
 import com.aimory.controller.dto.toPhotoResponse
 import com.aimory.exception.ChildNotFoundException
-import com.aimory.exception.InvalidDeleteTypeException
 import com.aimory.exception.PhotoNotFoundException
 import com.aimory.model.Photo
 import com.aimory.repository.ChildRepository
@@ -70,12 +69,18 @@ class PhotoService(
     }
 
     @Transactional
-    fun deletePhotosByType(type: String, ids: List<Long>) {
-        when (type) {
-            "photo" -> photoRepository.deleteAllById(ids)
-            "child" -> ids.forEach { photoRepository.deleteAllByChildId(it) }
-            "all" -> photoRepository.deleteAll()
-            else -> throw InvalidDeleteTypeException()
+    fun deletePhotoById(photoId: Long) {
+        val photo = photoRepository.findById(photoId)
+            .orElseThrow { PhotoNotFoundException() }
+        photoRepository.delete(photo)
+    }
+
+    @Transactional
+    fun deletePhotosByChildId(childId: Long) {
+        val childExists = childRepository.existsById(childId)
+        if (!childExists) {
+            throw ChildNotFoundException()
         }
+        photoRepository.deleteAllByChildId(childId)
     }
 }

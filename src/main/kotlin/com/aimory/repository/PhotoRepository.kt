@@ -19,8 +19,4 @@ interface PhotoRepository : JpaRepository<Photo, Long> {
     @Modifying
     @Query("DELETE FROM Photo p WHERE p.id IN :photoIds")
     fun deleteByPhotoIds(photoIds: List<Long>)
-
-    @Modifying
-    @Query("DELETE FROM Photo p")
-    fun deleteAllPhotos()
 }
