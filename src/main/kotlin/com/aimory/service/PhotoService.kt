@@ -1,17 +1,19 @@
 package com.aimory.service
 
-import com.aimory.controller.dto.PhotoAlbumResponse
-import com.aimory.controller.dto.PhotoResponse
-import com.aimory.controller.dto.toPhotoAlbumResponse
-import com.aimory.controller.dto.toPhotoResponse
 import com.aimory.exception.ChildNotFoundException
+import com.aimory.exception.EmptyChildIdListException
+import com.aimory.exception.EmptyPhotoIdListException
+import com.aimory.exception.NonExistentChildIdException
 import com.aimory.exception.PhotoNotFoundException
-import com.aimory.model.Photo
 import com.aimory.repository.ChildRepository
 import com.aimory.repository.PhotoRepository
+import com.aimory.service.dto.PhotoRequestDto
+import com.aimory.service.dto.PhotoResponseDto
+import com.aimory.service.dto.toEntity
+import com.aimory.service.dto.toResponseDto
+import com.aimory.service.dto.toResponseDtoList
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional(readOnly = true)
@@ -21,66 +23,64 @@ class PhotoService(
 ) {
 
     @Transactional
-    fun createPhotos(files: List<MultipartFile>, childId: Long): List<Photo> {
-        val child = childRepository.findById(childId).orElseThrow {
-            ChildNotFoundException()
-        }
+    fun createPhotos(photoRequestDto: PhotoRequestDto): List<PhotoResponseDto> {
+        val child = childRepository.findById(photoRequestDto.childId)
+            .orElseThrow { ChildNotFoundException() }
 
-        val photos = files.map { file ->
-            Photo(imageUrl = "local-storage/${file.originalFilename}", child = child)
-        }
+        val photos = photoRequestDto.toEntity(child)
+        val savedPhotos = photoRepository.saveAll(photos)
 
-        return photoRepository.saveAll(photos)
+        return savedPhotos.toResponseDtoList()
     }
 
-    fun getPhotoAlbums(): List<PhotoAlbumResponse> {
+    fun getAllPhotos(): List<PhotoResponseDto> {
         val photos = photoRepository.findAll()
-
-        val allPhotoAlbum = photos.toPhotoAlbumResponse(childId = 0, profileImageUrl = "")
-
-        val groupedPhotos = photos.groupBy { it.child }
-            .map { (child, childPhotos) ->
-                childPhotos.toPhotoAlbumResponse(child.id, child.profileImageUrl)
-            }
-
-        return listOf(allPhotoAlbum) + groupedPhotos
+        return photos.toResponseDtoList()
     }
 
-    fun getPhotoById(photoId: Long): PhotoResponse {
+    fun getAllPhotosCount(): Int {
+        return photoRepository.count().toInt()
+    }
+
+    fun getDetailPhoto(photoId: Long): PhotoResponseDto {
         val photo = photoRepository.findById(photoId)
             .orElseThrow { PhotoNotFoundException() }
-        return photo.toPhotoResponse()
+        return photo.toResponseDto()
     }
 
-    fun getAllPhotos(): List<PhotoResponse> {
-        val photos = photoRepository.findAll()
-        return photos.map { photo ->
-            val photoCount = photoRepository.countByChildId(photo.child.id)
-            photo.toPhotoResponse()
-        }
-    }
-
-    fun getPhotosByChildId(childId: Long): List<PhotoResponse> {
-        val photos = photoRepository.findByChildId(childId)
-        val photoCount = photoRepository.countByChildId(childId)
-        return photos.map { photo ->
-            photo.toPhotoResponse()
-        }
-    }
-
-    @Transactional
-    fun deletePhotoById(photoId: Long) {
-        val photo = photoRepository.findById(photoId)
-            .orElseThrow { PhotoNotFoundException() }
-        photoRepository.delete(photo)
-    }
-
-    @Transactional
-    fun deletePhotosByChildId(childId: Long) {
-        val childExists = childRepository.existsById(childId)
-        if (!childExists) {
+    fun getPhotosByChildId(childId: Long): List<PhotoResponseDto> {
+        if (!childRepository.existsById(childId)) {
             throw ChildNotFoundException()
         }
-        photoRepository.deleteAllByChildId(childId)
+        val photos = photoRepository.findByChildId(childId)
+        return photos.toResponseDtoList()
+    }
+
+    fun getPhotoCountByChildId(childId: Long): Int {
+        if (!childRepository.existsById(childId)) {
+            throw ChildNotFoundException()
+        }
+        return photoRepository.countByChildId(childId)
+    }
+
+    @Transactional
+    fun deletePhotos(photoIds: List<Long>): String {
+        if (photoIds.isEmpty()) throw EmptyPhotoIdListException()
+
+        photoRepository.deleteByPhotoIds(photoIds)
+        return "선택한 사진이 성공적으로 삭제되었습니다."
+    }
+
+    @Transactional
+    fun deletePhotosByChildId(childIds: List<Long>): String {
+        if (childIds.isEmpty()) throw EmptyChildIdListException()
+
+        childIds.forEach { childId ->
+            if (!childRepository.existsById(childId)) {
+                throw NonExistentChildIdException(childId)
+            }
+            photoRepository.deleteByChildId(childId)
+        }
+        return "선택한 원아의 사진이 성공적으로 삭제되었습니다."
     }
 }
