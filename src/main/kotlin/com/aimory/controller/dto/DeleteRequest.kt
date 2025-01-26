@@ -1,5 +1,5 @@
 package com.aimory.controller.dto
 
-data class NoteDeleteRequest(
+data class DeleteRequest(
     val data: List<Long>,
 )
