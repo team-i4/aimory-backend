@@ -3,7 +3,7 @@ env:
   AWS_REGION: ap-northeast-2
 on:
   push:
-    branches: [ develop/github-actions-test ]
+    branches: [ github-actions-test ]
 jobs:
   deploy:
     name: Deploy
@@ -19,12 +19,11 @@ jobs:
       with:
         java-version: '17'
         distribution: 'zulu'
-    
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
 
     - name: Build with Gradle
-      run: ./gradlew clean build
+      run: |
+        chmod +x ./gradlew
+        ./gradlew clean build
        
     - name: Get current time
       uses: 1466587594/get-current-time@v2
