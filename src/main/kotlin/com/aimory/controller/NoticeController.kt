@@ -1,6 +1,6 @@
 package com.aimory.controller
 
-import com.aimory.controller.dto.NoticeDeleteRequest
+import com.aimory.controller.dto.DeleteRequest
 import com.aimory.controller.dto.NoticeListResponse
 import com.aimory.controller.dto.NoticeRequest
 import com.aimory.controller.dto.NoticeResponse
@@ -87,8 +87,8 @@ class NoticeController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "공지사항 삭제 API")
     fun deleteNotices(
-        @RequestBody noticeDeleteRequest: NoticeDeleteRequest,
+        @RequestBody deleteRequest: DeleteRequest,
     ): DeleteResponseDto {
-        return noticeService.deleteNotices(noticeDeleteRequest.data)
+        return noticeService.deleteNotices(deleteRequest.data)
     }
 }
