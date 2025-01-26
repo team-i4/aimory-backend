@@ -3,13 +3,13 @@ package com.aimory.service.dto
 import com.aimory.model.Notice
 import java.time.LocalDate
 
-data class NoticeCreateRequestDto(
+data class NoticeRequestDto(
     val title: String,
     val content: String,
     val date: LocalDate,
 )
 
-fun NoticeCreateRequestDto.toEntity() = Notice(
+fun NoticeRequestDto.toEntity() = Notice(
     title = title,
     content = content,
     date = date

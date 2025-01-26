@@ -1,0 +1,84 @@
+package com.aimory.service
+
+import com.aimory.exception.NoteNotFoundException
+import com.aimory.repository.NoteRepository
+import com.aimory.service.dto.DeleteResponseDto
+import com.aimory.service.dto.NoteRequestDto
+import com.aimory.service.dto.NoteResponseDto
+import com.aimory.service.dto.toEntity
+import com.aimory.service.dto.toResponseDto
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+@Transactional(readOnly = true)
+class NoteService(
+    private val noteRepository: NoteRepository,
+) {
+    /**
+     * 알림장 생성
+     */
+    @Transactional
+    fun createNote(
+        noteRequestDto: NoteRequestDto,
+    ): NoteResponseDto {
+        val note = noteRepository.save(noteRequestDto.toEntity())
+        return note.toResponseDto()
+    }
+
+    /**
+     * 알림장 전체 조회
+     */
+    fun getAllNotes():
+        List<NoteResponseDto> {
+        val noteList = noteRepository.findAll()
+        return noteList.map {
+            it.toResponseDto()
+        }
+    }
+
+    /**
+     * 알림장 단일 조회
+     */
+    fun getDetailNote(
+        noteId: Long,
+    ): NoteResponseDto {
+        val note = noteRepository.findById(noteId)
+            .orElseThrow {
+                NoteNotFoundException()
+            }
+        return note.toResponseDto()
+    }
+
+    /**
+     * 알림장 수정
+     */
+    @Transactional
+    fun updateNote(
+        noteId: Long,
+        noteRequestDto: NoteRequestDto,
+    ): NoteResponseDto {
+        val note = noteRepository.findById(noteId)
+            .orElseThrow {
+                NoteNotFoundException()
+            }
+        note.update(noteRequestDto)
+        return note.toResponseDto()
+    }
+
+    /**
+     * 알림장 삭제
+     */
+    @Transactional
+    fun deleteNotes(
+        noteIdList: List<Long>,
+    ): DeleteResponseDto {
+        noteIdList.forEach {
+            val note = noteRepository.findById(it).orElseThrow {
+                NoteNotFoundException()
+            }
+            noteRepository.deleteById(note.id)
+        }
+        return DeleteResponseDto("성공적으로 삭제되었습니다.")
+    }
+}

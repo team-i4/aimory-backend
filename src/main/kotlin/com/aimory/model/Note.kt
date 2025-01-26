@@ -1,30 +1,23 @@
 package com.aimory.model
 
-import com.aimory.service.dto.NoticeRequestDto
-import jakarta.persistence.CascadeType
+import com.aimory.service.dto.NoteRequestDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.time.LocalDate
 
 @Entity
-@Table(name = "notice")
-class Notice(
-    title: String,
+@Table(name = "note")
+class Note(
     content: String,
     date: LocalDate,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
-
-    @Column(name = "title", nullable = false)
-    var title: String = title
-        protected set
 
     @Column(name = "content", nullable = false)
     var content: String = content
@@ -42,14 +35,9 @@ class Notice(
     var updatedAt: LocalDate = createdAt
         protected set
 
-    @OneToMany(mappedBy = "notice", orphanRemoval = true, cascade = [CascadeType.ALL])
-    var noticeImages: MutableList<NoticeImage> = mutableListOf()
-        protected set
-
-    fun update(noticeRequestDto: NoticeRequestDto) {
-        this.title = noticeRequestDto.title
-        this.content = noticeRequestDto.content
-        this.date = noticeRequestDto.date
+    fun update(noteRequestDto: NoteRequestDto) {
+        this.content = noteRequestDto.content
+        this.date = noteRequestDto.date
         this.updatedAt = LocalDate.now()
     }
 }
