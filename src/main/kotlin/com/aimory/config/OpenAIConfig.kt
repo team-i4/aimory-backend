@@ -8,7 +8,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
-class OpenAIConfig (
+class OpenAIConfig(
     @Value("\${openai.api.key}") private val apiKey: String,
     @Value("\${openai.api.url}") private val apiUrl: String,
 ) {
