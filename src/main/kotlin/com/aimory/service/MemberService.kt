@@ -8,6 +8,7 @@ import com.aimory.model.Member
 import com.aimory.repository.MemberRepository
 import com.aimory.service.dto.JoinRequestDto
 import com.aimory.service.dto.toEntity
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class MemberService(
     private val memberRepository: MemberRepository,
+    private val passwordEncoder: PasswordEncoder,
 ) {
     @Transactional
     fun join(joinRequestDto: JoinRequestDto): JoinResponse {
@@ -28,7 +30,7 @@ class MemberService(
     @Transactional
     fun login(email: String, password: String): Member {
         val member = memberRepository.findByEmail(email) ?: throw MemberNotFoundException()
-        member.login(password)
+        member.login(passwordEncoder, password)
         return member
     }
 }

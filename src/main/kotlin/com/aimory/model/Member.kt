@@ -14,7 +14,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 
 @Entity
@@ -53,8 +52,7 @@ class Member(
     var role: Role = role
         protected set
 
-    fun login(credentials: String) {
-        val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
+    fun login(passwordEncoder: PasswordEncoder, credentials: String) {
         if (!passwordEncoder.matches(credentials, password)) {
             throw UnauthorizedException("비밀번호가 일치하지 않습니다.")
         }
