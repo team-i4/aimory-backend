@@ -2,6 +2,7 @@ package com.aimory.model
 
 import com.aimory.enums.Role
 import com.aimory.exception.UnauthorizedException
+import com.aimory.security.Jwt
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorColumn
 import jakarta.persistence.Entity
@@ -57,5 +58,10 @@ class Member(
         if (!passwordEncoder.matches(credentials, password)) {
             throw UnauthorizedException("비밀번호가 일치하지 않습니다.")
         }
+    }
+
+    fun newApiToken(jwt: Jwt, role: Role): String {
+        val claims: Jwt.Claims = Jwt.Claims.of(id, name, email, role)
+        return jwt.newToken(claims)
     }
 }
