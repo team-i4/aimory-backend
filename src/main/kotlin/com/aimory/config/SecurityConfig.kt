@@ -57,6 +57,10 @@ class SecurityConfig(
                 authorize("/health-check", permitAll)
                 authorize("/signup", permitAll)
                 authorize("/login", permitAll)
+                authorize("/swagger-ui/**", permitAll)
+                authorize("/swagger-resources/**", permitAll)
+                authorize("/v3/api-docs/**", permitAll)
+                authorize("/h2-console/**", permitAll)
                 authorize("**", authenticated)
             }
             sessionManagement {
