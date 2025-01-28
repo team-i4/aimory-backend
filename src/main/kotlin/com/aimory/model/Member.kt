@@ -1,6 +1,7 @@
 package com.aimory.model
 
 import com.aimory.enums.Role
+import com.aimory.exception.UnauthorizedException
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorColumn
 import jakarta.persistence.Entity
@@ -12,6 +13,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -48,4 +51,11 @@ class Member(
     @Column(name = "role", nullable = false)
     var role: Role = role
         protected set
+
+    fun login(credentials: String) {
+        val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
+        if (!passwordEncoder.matches(credentials, password)) {
+            throw UnauthorizedException("비밀번호가 일치하지 않습니다.")
+        }
+    }
 }
