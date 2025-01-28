@@ -3,7 +3,6 @@ package com.aimory.service
 import com.aimory.exception.ChildNotFoundException
 import com.aimory.exception.EmptyChildIdListException
 import com.aimory.exception.EmptyPhotoIdListException
-import com.aimory.exception.NonExistentChildIdException
 import com.aimory.exception.PhotoNotFoundException
 import com.aimory.repository.ChildRepository
 import com.aimory.repository.PhotoRepository
@@ -25,7 +24,7 @@ class PhotoService(
     @Transactional
     fun createPhotos(photoRequestDto: PhotoRequestDto): List<PhotoResponseDto> {
         val child = childRepository.findById(photoRequestDto.childId)
-            .orElseThrow { ChildNotFoundException() }
+            .orElseThrow { ChildNotFoundException(photoRequestDto.childId) }
 
         val photos = photoRequestDto.toEntity(child)
         val savedPhotos = photoRepository.saveAll(photos)
@@ -44,13 +43,13 @@ class PhotoService(
 
     fun getDetailPhoto(photoId: Long): PhotoResponseDto {
         val photo = photoRepository.findById(photoId)
-            .orElseThrow { PhotoNotFoundException() }
+            .orElseThrow { PhotoNotFoundException(photoId) }
         return photo.toResponseDto()
     }
 
     fun getPhotosByChildId(childId: Long): List<PhotoResponseDto> {
         if (!childRepository.existsById(childId)) {
-            throw ChildNotFoundException()
+            throw ChildNotFoundException(childId)
         }
         val photos = photoRepository.findByChildId(childId)
         return photos.toResponseDtoList()
@@ -58,29 +57,34 @@ class PhotoService(
 
     fun getPhotoCountByChildId(childId: Long): Int {
         if (!childRepository.existsById(childId)) {
-            throw ChildNotFoundException()
+            throw ChildNotFoundException(childId)
         }
         return photoRepository.countByChildId(childId)
     }
 
     @Transactional
-    fun deletePhotos(photoIds: List<Long>): String {
+    fun deletePhotos(photoIds: List<Long>): List<Long> {
         if (photoIds.isEmpty()) throw EmptyPhotoIdListException()
 
-        photoRepository.deleteByPhotoIds(photoIds)
-        return "선택한 사진이 성공적으로 삭제되었습니다."
+        photoIds.forEach { photoId ->
+            if (!photoRepository.existsById(photoId)) {
+                throw PhotoNotFoundException(photoId)
+            }
+            photoRepository.deleteByPhotoIds(photoIds)
+        }
+        return photoIds
     }
 
     @Transactional
-    fun deletePhotosByChildId(childIds: List<Long>): String {
+    fun deletePhotosByChildId(childIds: List<Long>): List<Long> {
         if (childIds.isEmpty()) throw EmptyChildIdListException()
 
         childIds.forEach { childId ->
             if (!childRepository.existsById(childId)) {
-                throw NonExistentChildIdException(childId)
+                throw ChildNotFoundException(childId)
             }
             photoRepository.deleteByChildId(childId)
         }
-        return "선택한 원아의 사진이 성공적으로 삭제되었습니다."
+        return childIds
     }
 }

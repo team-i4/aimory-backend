@@ -1,7 +1,8 @@
 package com.aimory.controller
 
+import com.aimory.controller.dto.DeleteChildPhotoResponse
+import com.aimory.controller.dto.DeletePhotoResponse
 import com.aimory.controller.dto.DeleteRequest
-import com.aimory.controller.dto.DeleteResponse
 import com.aimory.controller.dto.PhotoListResponse
 import com.aimory.controller.dto.PhotoResponse
 import com.aimory.controller.dto.toResponse
@@ -58,12 +59,12 @@ class PhotoController(
     }
 
     @DeleteMapping("/photos")
-    fun deletePhotos(@RequestBody deleteRequest: DeleteRequest): DeleteResponse {
-        return DeleteResponse(photoService.deletePhotos(deleteRequest.data))
+    fun deletePhotos(@RequestBody deleteRequest: DeleteRequest): DeletePhotoResponse {
+        return DeletePhotoResponse(deletedPhotoIds = photoService.deletePhotos(deleteRequest.data))
     }
 
     @DeleteMapping("/photos/child")
-    fun deletePhotosByChildId(@RequestBody deleteRequest: DeleteRequest): DeleteResponse {
-        return DeleteResponse(photoService.deletePhotosByChildId(deleteRequest.data))
+    fun deletePhotosByChildId(@RequestBody deleteRequest: DeleteRequest): DeleteChildPhotoResponse {
+        return DeleteChildPhotoResponse(deletedChildPhotoIds = photoService.deletePhotosByChildId(deleteRequest.data))
     }
 }
