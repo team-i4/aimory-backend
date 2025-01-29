@@ -1,0 +1,59 @@
+name: aimory
+env:
+  AWS_REGION: ap-northeast-2
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'zulu'
+
+    - name: Set Yaml
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: ./src/main/resources/application-prod.yml 
+      env:
+        spring.datasource.username: ${{ secrets.DB_USERNAME }} 
+        spring.datasource.password: ${{ secrets.DB_PASSWORD }}
+        jwt.clientSecret: ${{ secrets.JWT_CLIENT_SECRET }}
+
+    - name: Build with Gradle
+      run: |
+        chmod +x ./gradlew
+        ./gradlew clean build
+       
+    - name: Get current time
+      uses: 1466587594/get-current-time@v2
+      id: current-time
+      with:
+        format: YYYY-MM-DDTHH-mm-ss
+        utcOffset: "+09:00"
+        
+    - name: Generate deployment package
+      run: |
+        mkdir -p deploy
+        cp build/libs/*.jar deploy/application.jar
+        cd deploy && zip -r deploy.zip .
+        
+    - name: Beanstalk Deploy
+      uses: einaregilsson/beanstalk-deploy@v21
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        region: ${{ env.AWS_REGION }}
+        application_name: aimory
+        environment_name: Aimory-env
+        version_label: github-action-${{steps.current-time.outputs.formattedTime}}
+        deployment_package: deploy/deploy.zip
