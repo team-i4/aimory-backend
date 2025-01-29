@@ -18,6 +18,7 @@ import jakarta.persistence.Table
 @DiscriminatorColumn(name = "type")
 @Table(name = "member")
 class Member(
+    centerId: Long,
     name: String,
     email: String,
     password: String,
@@ -26,6 +27,10 @@ class Member(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
+
+    @Column(name = "center_id", nullable = false)
+    var centerId: Long = centerId
+        protected set
 
     @Column(name = "name", nullable = false)
     var name: String = name
