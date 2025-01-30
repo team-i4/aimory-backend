@@ -17,3 +17,9 @@ jwt:
   issuer: aimory_server
   clientSecret: YWltb3J5IHNlY3JldCBjbGllbnQgdGVzdCBrZXk=
   expirySeconds: 3600
+
+openai:
+  model: dall-e-3
+  api:
+    key: ${OPENAI_API_KEY}
+    url: https://api.openai.com/v1/images/generations
