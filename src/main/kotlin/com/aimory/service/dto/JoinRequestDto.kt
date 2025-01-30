@@ -4,6 +4,7 @@ import com.aimory.enums.Role
 import com.aimory.model.Member
 import com.aimory.model.Parent
 import com.aimory.model.Teacher
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 class JoinRequestDto(
     val centerId: Long,
@@ -14,6 +15,7 @@ class JoinRequestDto(
 )
 
 fun JoinRequestDto.toEntity(): Member {
+    val password = BCryptPasswordEncoder().encode(password)
     val member =
         if (role == Role.TEACHER) {
             Teacher(

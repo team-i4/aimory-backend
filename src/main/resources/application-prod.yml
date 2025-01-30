@@ -8,3 +8,9 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: false
+
+jwt:
+  header: api_key
+  issuer: aimory_server
+  clientSecret: ${JWT_CLIENT_SECRET}
+  expirySeconds: 3600

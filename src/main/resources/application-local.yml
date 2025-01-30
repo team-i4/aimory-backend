@@ -11,3 +11,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+jwt:
+  header: api_key
+  issuer: aimory_server
+  clientSecret: YWltb3J5IHNlY3JldCBjbGllbnQgdGVzdCBrZXk=
+  expirySeconds: 3600
