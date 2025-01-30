@@ -1,3 +1,9 @@
 spring:
   profiles:
     active: prod
+    group:
+      local:
+        - private
+        - local
+      prod:
+        - prod
