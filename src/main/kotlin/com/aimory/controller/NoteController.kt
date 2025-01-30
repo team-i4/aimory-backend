@@ -1,6 +1,8 @@
 package com.aimory.controller
 
 import com.aimory.controller.dto.DeleteRequest
+import com.aimory.controller.dto.NoteImageRequest
+import com.aimory.controller.dto.NoteImageResponse
 import com.aimory.controller.dto.NoteListResponse
 import com.aimory.controller.dto.NoteRequest
 import com.aimory.controller.dto.NoteResponse
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
 
 @RestController
 @Tag(name = "notes", description = "알림장 API")
@@ -90,5 +93,19 @@ class NoteController(
         @RequestBody deleteRequest: DeleteRequest,
     ): DeleteResponseDto {
         return noteService.deleteNotes(deleteRequest.data)
+    }
+
+    /**
+     * 알림장 그림 생성
+     */
+    @PostMapping("/note-images")
+    fun generateNoteImage(
+        @RequestBody noteImageRequest: NoteImageRequest,
+    ): Mono<NoteImageResponse> {
+        val imageUrl = noteService.createNoteImage(noteImageRequest.toRequestDto())
+        return imageUrl.map {
+                it ->
+            NoteImageResponse(it)
+        }
     }
 }
