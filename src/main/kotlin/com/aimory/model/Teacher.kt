@@ -19,9 +19,9 @@ class Teacher(
     name,
     email,
     password,
-    role = Role.PARENT
+    role = Role.TEACHER
 ) {
-    @Column(name = "profile_image_url", nullable = false)
+    @Column(name = "profile_image_url", nullable = true)
     var profileImageUrl: String? = null
         protected set
 }

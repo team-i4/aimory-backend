@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/aimory?useSSL=false&serverTimezone=Asia/Seoul
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  header: api_key
+  issuer: aimory_server
+  clientSecret: YWltb3J5IHNlY3JldCBjbGllbnQgdGVzdCBrZXk=
+  expirySeconds: 3600

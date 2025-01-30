@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:mysql://awseb-e-wmcbx2hvqk-stack-awsebrdsdatabase-c7gm27ehko98.ctyous2wke87.ap-northeast-2.rds.amazonaws.com/aimory?useSSL=false&serverTimezone=Asia/Seoul
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+jwt:
+  header: api_key
+  issuer: aimory_server
+  clientSecret: ${JWT_CLIENT_SECRET}
+  expirySeconds: 3600
