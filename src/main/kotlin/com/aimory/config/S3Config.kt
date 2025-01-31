@@ -1,5 +1,6 @@
 package com.aimory.config
 
+import com.aimory.service.S3Service
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3
@@ -9,16 +10,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class S3Config {
-    @Value("\${cloud.aws.credentials.access-key}")
-    private lateinit var accessKey: String
-
-    @Value("\${cloud.aws.credentials.secret-key}")
-    private lateinit var secretKey: String
-
-    @Value("\${cloud.aws.region.static}")
-    private lateinit var region: String
-
+class S3Config(
+    @Value("\${cloud.aws.credentials.access-key}") val accessKey: String,
+    @Value("\${cloud.aws.credentials.secret-key}") val secretKey: String,
+    @Value("\${cloud.aws.region.static}") val region: String,
+    @Value("\${cloud.aws.s3.bucketName}") val bucketName: String,
+) {
     @Bean
     fun amazonS3Client(): AmazonS3 {
         val awsCredentials = BasicAWSCredentials(accessKey, secretKey)

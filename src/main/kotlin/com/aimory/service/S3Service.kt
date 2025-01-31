@@ -1,10 +1,10 @@
 package com.aimory.service
 
+import com.aimory.config.S3Config
 import com.aimory.exception.S3Exception
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.AmazonS3Exception
 import com.amazonaws.services.s3.model.ObjectMetadata
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -13,10 +13,8 @@ import java.util.UUID
 @Service
 class S3Service(
     private val amazonS3: AmazonS3,
+    private val s3Config: S3Config,
 ) {
-
-    @Value("\${cloud.aws.s3.bucketName}")
-    private lateinit var bucketName: String
 
     fun uploadFile(file: MultipartFile): String {
         val originalFilename = file.originalFilename?.takeIf { it.isNotBlank() }
@@ -33,8 +31,8 @@ class S3Service(
         }
 
         return try {
-            amazonS3.putObject(bucketName, fileName, file.inputStream, metadata)
-            amazonS3.getUrl(bucketName, fileName).toString()
+            amazonS3.putObject(s3Config.bucketName, fileName, file.inputStream, metadata)
+            amazonS3.getUrl(s3Config.bucketName, fileName).toString()
         } catch (e: AmazonS3Exception) {
             throw S3Exception(S3Exception.FILE_UPLOAD_ERROR)
         }
@@ -46,7 +44,7 @@ class S3Service(
 
         fileUrls.forEach { fileUrl ->
             val fileName = extractFileNameFromUrl(fileUrl)
-            amazonS3.deleteObject(bucketName, fileName)
+            amazonS3.deleteObject(s3Config.bucketName, fileName)
         }
         return fileUrls
     }
