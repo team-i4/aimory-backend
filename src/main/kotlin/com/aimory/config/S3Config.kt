@@ -1,6 +1,5 @@
 package com.aimory.config
 
-import com.aimory.service.S3Service
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3
