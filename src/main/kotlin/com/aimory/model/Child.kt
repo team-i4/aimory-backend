@@ -17,7 +17,7 @@ import jakarta.persistence.Table
 class Child(
     name: String,
     parent: Parent,
-    profileImageUrl: String,
+    profileImageUrl: String?,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +27,8 @@ class Child(
     var name: String = name
         protected set
 
-    @Column(name = "profile_image_url", nullable = false)
-    var profileImageUrl: String = profileImageUrl
+    @Column(name = "profile_image_url", nullable = true)
+    var profileImageUrl: String? = profileImageUrl
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
