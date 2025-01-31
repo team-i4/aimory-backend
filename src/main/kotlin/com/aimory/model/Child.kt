@@ -15,12 +15,17 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "child")
 class Child(
+    name: String,
     parent: Parent,
     profileImageUrl: String,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
+
+    @Column(name = "name", nullable = false)
+    var name: String = name
+        protected set
 
     @Column(name = "profile_image_url", nullable = false)
     var profileImageUrl: String = profileImageUrl
