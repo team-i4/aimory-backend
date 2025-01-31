@@ -2,6 +2,7 @@ package com.aimory.service
 
 import com.aimory.exception.S3Exception
 import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.AmazonS3Exception
 import com.amazonaws.services.s3.model.ObjectMetadata
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -34,7 +35,7 @@ class S3Service(
         return try {
             amazonS3.putObject(bucketName, fileName, file.inputStream, metadata)
             amazonS3.getUrl(bucketName, fileName).toString()
-        } catch (e: Exception) {
+        } catch (e: AmazonS3Exception) {
             throw S3Exception(S3Exception.FILE_UPLOAD_ERROR)
         }
     }
