@@ -52,7 +52,7 @@ class Jwt(
             userKey = decodedJWT.getClaim("userKey")?.asLong()
             name = decodedJWT.getClaim("name")?.asString()
             email = decodedJWT.getClaim("email")?.asString()
-            roles = decodedJWT.getClaim("roles")?.asList(String::class.java) as List<String?>
+            roles = decodedJWT.getClaim("role")?.asList(String::class.java) as List<String?>
             iat = decodedJWT.issuedAt
             exp = decodedJWT.expiresAt
         }

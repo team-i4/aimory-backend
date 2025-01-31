@@ -5,7 +5,6 @@ import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.GrantedAuthority
@@ -15,7 +14,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.GenericFilterBean
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
-import java.util.*
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 
@@ -43,8 +41,7 @@ class JwtAuthenticationTokenFilter(
                     val email: String? = claims.email
 
                     val authorities = obtainAuthorities(claims)
-
-                    if (Objects.nonNull(userKey) && StringUtils.isNotEmpty(name) && Objects.nonNull(email)) {
+                    if (userKey != null && !name.isNullOrBlank() && !email.isNullOrBlank()) {
                         val authentication =
                             JwtAuthenticationToken(JwtAuthentication(userKey, name, email), null, authorities)
                         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
@@ -90,7 +87,7 @@ class JwtAuthenticationTokenFilter(
                 log.error(e.message, e)
             }
         }
-        return token
+        return null
     }
 
     private fun verify(token: String): Jwt.Claims {
