@@ -2,7 +2,6 @@ package com.aimory.repository
 
 import com.aimory.model.Photo
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 
@@ -14,10 +13,6 @@ interface PhotoRepository : JpaRepository<Photo, Long> {
     @Query("SELECT COUNT(p) FROM Photo p WHERE p.child.id = :childId")
     fun countByChildId(childId: Long): Int
 
-    @Modifying
-    fun deleteByChildId(childId: Long)
-
-    @Modifying
-    @Query("DELETE FROM Photo p WHERE p.id IN :photoIds")
-    fun deleteByPhotoIds(photoIds: List<Long>)
+    @Query("SELECT p FROM Photo p WHERE p.child.id IN :childIds")
+    fun findAllByChildIds(childIds: List<Long>): List<Photo>
 }

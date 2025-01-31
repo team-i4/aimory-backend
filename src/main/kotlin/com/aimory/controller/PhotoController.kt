@@ -9,7 +9,6 @@ import com.aimory.controller.dto.toResponse
 import com.aimory.exception.InvalidChildIdException
 import com.aimory.exception.InvalidPhotoUploadException
 import com.aimory.service.PhotoService
-import com.aimory.service.dto.toRequestDto
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -37,7 +36,7 @@ class PhotoController(
         if (files.isEmpty()) throw InvalidPhotoUploadException()
         if (childId <= 0) throw InvalidChildIdException()
 
-        val photoDtoList = photoService.createPhotos(files.toRequestDto(childId))
+        val photoDtoList = photoService.createPhotos(files, childId)
         return photoDtoList.toResponse()
     }
 
@@ -80,6 +79,6 @@ class PhotoController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "특정 원아 사진 삭제 API")
     fun deletePhotosByChildId(@RequestBody deleteRequest: DeleteRequest): DeleteChildPhotoResponse {
-        return DeleteChildPhotoResponse(deletedChildPhotoIds = photoService.deletePhotosByChildId(deleteRequest.data))
+        return DeleteChildPhotoResponse(deletedPhotosChildId = photoService.deletePhotosByChildId(deleteRequest.data))
     }
 }
