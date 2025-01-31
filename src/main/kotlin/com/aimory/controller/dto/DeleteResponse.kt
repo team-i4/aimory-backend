@@ -1,7 +1,7 @@
 package com.aimory.controller.dto
 
 data class DeleteChildPhotoResponse(
-    val deletedChildPhotoIds: List<Long>,
+    val deletedPhotosChildId: List<Long>,
 )
 
 data class DeletePhotoResponse(
