@@ -95,9 +95,11 @@ class NoticeController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "공지사항 삭제 API")
     fun deleteNotices(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
         @RequestBody deleteRequest: DeleteRequest,
     ): DeleteResponse {
-        val deleteNoticeIds = noticeService.deleteNotices(deleteRequest.data)
+        val memberId = authentication.id
+        val deleteNoticeIds = noticeService.deleteNotices(memberId, deleteRequest.data)
         return DeleteResponse(deleteNoticeIds)
     }
 }

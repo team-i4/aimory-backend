@@ -84,13 +84,15 @@ class NoticeService(
      */
     @Transactional
     fun deleteNotices(
+        memberId: Long,
         noticeIds: List<Long>,
     ): List<Long> {
+        val member = checkMemberExists(memberId)
+        val center = checkCenterExists(member.centerId)
         val deleteNoticeIds = mutableListOf<Long>()
         noticeIds.forEach {
-            val notice = noticeRepository.findById(it).orElseThrow {
-                NoticeNotFoundException()
-            }
+            val notice = checkNoticeExists(it)
+            checkMemberBelongsToCenter(member, notice)
             noticeRepository.deleteById(notice.id)
             deleteNoticeIds.add(notice.id)
         }

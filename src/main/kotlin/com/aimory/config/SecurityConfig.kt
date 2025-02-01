@@ -65,6 +65,7 @@ class SecurityConfig(
                 authorize("/h2-console/**", permitAll)
                 authorize(HttpMethod.POST, "/notices/**", hasRole(Role.TEACHER.name))
                 authorize(HttpMethod.PUT, "/notices/**", hasRole(Role.TEACHER.name))
+                authorize(HttpMethod.DELETE, "/notices/**", hasRole(Role.TEACHER.name))
                 authorize("**", authenticated)
             }
             sessionManagement {
