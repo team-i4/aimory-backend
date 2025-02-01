@@ -1,8 +1,13 @@
 package com.aimory.service
 
+import com.aimory.exception.CenterNotFoundException
+import com.aimory.exception.MemberNotFoundException
 import com.aimory.exception.NoticeNotFoundException
+import com.aimory.model.Center
+import com.aimory.model.Member
+import com.aimory.repository.CenterRepository
+import com.aimory.repository.MemberRepository
 import com.aimory.repository.NoticeRepository
-import com.aimory.service.dto.DeleteResponseDto
 import com.aimory.service.dto.NoticeRequestDto
 import com.aimory.service.dto.NoticeResponseDto
 import com.aimory.service.dto.toEntity
@@ -14,15 +19,20 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class NoticeService(
     private val noticeRepository: NoticeRepository,
+    private val memberRepository: MemberRepository,
+    private val centerRepository: CenterRepository,
 ) {
     /**
      * 공지사항 생성
      */
     @Transactional
     fun createNotice(
-        noticeCreateRequestDto: NoticeRequestDto,
+        memberId: Long,
+        noticeRequestDto: NoticeRequestDto,
     ): NoticeResponseDto {
-        val notice = noticeRepository.save(noticeCreateRequestDto.toEntity())
+        val member = checkMemberExists(memberId)
+        val center = checkCenterExists(member.centerId)
+        val notice = noticeRepository.save(noticeRequestDto.toEntity(center))
         return notice.toResponseDto()
     }
 
@@ -55,6 +65,7 @@ class NoticeService(
      */
     @Transactional
     fun updateNotice(
+        memberId: Long,
         noticeId: Long,
         noticeRequestDto: NoticeRequestDto,
     ): NoticeResponseDto {
@@ -82,5 +93,27 @@ class NoticeService(
             deleteNoticeIds.add(notice.id)
         }
         return deleteNoticeIds
+    }
+
+    /**
+     * 사용자 존재 여부 확인
+     */
+    private fun checkMemberExists(memberId: Long): Member {
+        val member = memberRepository.findById(memberId)
+            .orElseThrow {
+                MemberNotFoundException()
+            }
+        return member
+    }
+
+    /**
+     * 어린이집 존재 여부 확인
+     */
+    private fun checkCenterExists(centerId: Long): Center {
+        val center = centerRepository.findById(centerId)
+            .orElseThrow {
+                CenterNotFoundException()
+            }
+        return center
     }
 }

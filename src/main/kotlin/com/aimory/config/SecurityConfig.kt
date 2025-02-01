@@ -1,5 +1,6 @@
 package com.aimory.config
 
+import com.aimory.enums.Role
 import com.aimory.security.EntryPointUnauthorizedHandler
 import com.aimory.security.Jwt
 import com.aimory.security.JwtAccessDeniedHandler
@@ -8,6 +9,7 @@ import com.aimory.security.JwtAuthenticationTokenFilter
 import com.aimory.service.MemberService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -61,6 +63,7 @@ class SecurityConfig(
                 authorize("/swagger-resources/**", permitAll)
                 authorize("/v3/api-docs/**", permitAll)
                 authorize("/h2-console/**", permitAll)
+                authorize(HttpMethod.POST, "/notices/**", hasRole(Role.TEACHER.name))
                 authorize("**", authenticated)
             }
             sessionManagement {

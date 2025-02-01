@@ -5,6 +5,7 @@ import java.time.LocalDate
 
 data class NoticeResponseDto(
     val id: Long,
+    val centerId: Long,
     val title: String,
     val content: String,
     val date: LocalDate,
@@ -14,6 +15,7 @@ data class NoticeResponseDto(
 
 fun Notice.toResponseDto() = NoticeResponseDto(
     id = id,
+    centerId = center.id,
     title = title,
     content = content,
     date = date,

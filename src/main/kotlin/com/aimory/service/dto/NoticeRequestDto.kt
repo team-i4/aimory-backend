@@ -1,5 +1,6 @@
 package com.aimory.service.dto
 
+import com.aimory.model.Center
 import com.aimory.model.Notice
 import java.time.LocalDate
 
@@ -9,7 +10,8 @@ data class NoticeRequestDto(
     val date: LocalDate,
 )
 
-fun NoticeRequestDto.toEntity() = Notice(
+fun NoticeRequestDto.toEntity(center: Center) = Notice(
+    center = center,
     title = title,
     content = content,
     date = date
