@@ -1,5 +1,6 @@
 package com.aimory.config
 
+import com.aimory.enums.Role
 import com.aimory.security.EntryPointUnauthorizedHandler
 import com.aimory.security.Jwt
 import com.aimory.security.JwtAccessDeniedHandler
@@ -61,6 +62,7 @@ class SecurityConfig(
                 authorize("/swagger-resources/**", permitAll)
                 authorize("/v3/api-docs/**", permitAll)
                 authorize("/h2-console/**", permitAll)
+                authorize("/children/**", hasRole(Role.PARENT.name))
                 authorize("**", authenticated)
             }
             sessionManagement {
