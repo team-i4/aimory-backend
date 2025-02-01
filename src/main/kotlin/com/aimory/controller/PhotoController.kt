@@ -45,7 +45,7 @@ class PhotoController(
     @Operation(summary = "전체 사진 조회 API")
     fun getAllPhotos(): PhotoListResponse {
         val photoListDto = photoService.getAllPhotos()
-        val photoCount = photoService.getAllPhotosCount()
+        val photoCount = photoListDto.size
         val photoListResponse = photoListDto.map { it.toResponse() }
         return PhotoListResponse(photos = photoListResponse, totalCount = photoCount)
     }
@@ -53,7 +53,9 @@ class PhotoController(
     @GetMapping("/photos/{photoId}")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "단일 사진 조회 API")
-    fun getDetailPhoto(@PathVariable photoId: Long): PhotoResponse {
+    fun getDetailPhoto(
+        @PathVariable photoId: Long,
+    ): PhotoResponse {
         val photoDto = photoService.getDetailPhoto(photoId)
         return photoDto.toResponse()
     }
@@ -61,10 +63,13 @@ class PhotoController(
     @GetMapping("/photos/child")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "특정 원아 사진 조회 API")
-    fun getPhotosByChildId(@RequestParam("childId") childId: Long): PhotoListResponse {
+    fun getPhotosByChildId(
+        @RequestParam("childId") childId: Long,
+    ): PhotoListResponse {
         val photoListDto = photoService.getPhotosByChildId(childId)
-        val photoCount = photoService.getPhotoCountByChildId(childId)
+        val photoCount = photoListDto.size
         val photoListResponse = photoListDto.map { it.toResponse() }
+
         return PhotoListResponse(photos = photoListResponse, totalCount = photoCount)
     }
 
@@ -72,13 +77,15 @@ class PhotoController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "사진 삭제 API")
     fun deletePhotos(@RequestBody deleteRequest: DeleteRequest): DeletePhotoResponse {
-        return DeletePhotoResponse(deletedPhotoIds = photoService.deletePhotos(deleteRequest.data))
+        val deletedPhotoIds = photoService.deletePhotos(deleteRequest.data)
+        return DeletePhotoResponse(deletedPhotoIds = deletedPhotoIds)
     }
 
     @DeleteMapping("/photos/child")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "특정 원아 사진 삭제 API")
     fun deletePhotosByChildId(@RequestBody deleteRequest: DeleteRequest): DeleteChildPhotoResponse {
-        return DeleteChildPhotoResponse(deletedPhotosChildId = photoService.deletePhotosByChildId(deleteRequest.data))
+        val deletedChildIds = photoService.deletePhotosByChildId(deleteRequest.data)
+        return DeleteChildPhotoResponse(deletedPhotosChildId = deletedChildIds)
     }
 }

@@ -1,15 +1,19 @@
 package com.aimory.service
 
+import com.aimory.enums.Role
 import com.aimory.exception.ChildNotFoundException
 import com.aimory.exception.EmptyChildIdListException
 import com.aimory.exception.EmptyPhotoIdListException
 import com.aimory.exception.PhotoNotFoundException
+import com.aimory.exception.UnauthorizedException
 import com.aimory.model.Photo
 import com.aimory.repository.ChildRepository
 import com.aimory.repository.PhotoRepository
+import com.aimory.security.JwtAuthentication
 import com.aimory.service.dto.PhotoResponseDto
 import com.aimory.service.dto.toResponseDto
 import com.aimory.service.dto.toResponseDtoList
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -41,29 +45,32 @@ class PhotoService(
         return photos.toResponseDtoList()
     }
 
-    fun getAllPhotosCount(): Int {
-        return photoRepository.count().toInt()
-    }
-
     fun getDetailPhoto(photoId: Long): PhotoResponseDto {
+        val authentication = SecurityContextHolder.getContext().authentication
+        val authUser = authentication.principal as JwtAuthentication
+
         val photo = photoRepository.findById(photoId)
             .orElseThrow { PhotoNotFoundException() }
+
+        if (authUser.role == Role.PARENT && photo.child.parent.id != authUser.id) {
+            throw UnauthorizedException("해당 사진에 접근할 수 없습니다.")
+        }
+
         return photo.toResponseDto()
     }
 
     fun getPhotosByChildId(childId: Long): List<PhotoResponseDto> {
-        if (!childRepository.existsById(childId)) {
-            throw ChildNotFoundException()
-        }
-        val photos = photoRepository.findByChildId(childId)
-        return photos.toResponseDtoList()
-    }
+        val authentication = SecurityContextHolder.getContext().authentication
+        val authUser = authentication.principal as JwtAuthentication
 
-    fun getPhotoCountByChildId(childId: Long): Int {
-        if (!childRepository.existsById(childId)) {
-            throw ChildNotFoundException()
+        val child = childRepository.findById(childId)
+            .orElseThrow { ChildNotFoundException() }
+
+        if (authUser.role == Role.PARENT && child.parent.id != authUser.id) {
+            throw UnauthorizedException("해당 원아의 사진을 조회할 수 없습니다.")
         }
-        return photoRepository.countByChildId(childId)
+
+        return photoRepository.findByChildId(childId).toResponseDtoList()
     }
 
     @Transactional
