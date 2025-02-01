@@ -41,9 +41,11 @@ class NoticeService(
     /**
      * 공지사항 전제 조회
      */
-    fun getAllNotices():
-        List<NoticeResponseDto> {
-        val notices = noticeRepository.findAll()
+    fun getAllNotices(
+        memberId: Long,
+    ): List<NoticeResponseDto> {
+        val member = checkMemberExists(memberId)
+        val notices = noticeRepository.findAllByCenterId(member.centerId)
         return notices.map {
             it.toResponseDto()
         }

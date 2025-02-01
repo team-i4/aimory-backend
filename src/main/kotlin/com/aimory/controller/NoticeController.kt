@@ -50,9 +50,11 @@ class NoticeController(
     @GetMapping("/notices")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "공지사항 전체 조회 API")
-    fun getAllNotices():
-        NoticeListResponse {
-        val noticeListDto = noticeService.getAllNotices()
+    fun getAllNotices(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
+    ): NoticeListResponse {
+        val memberId = authentication.id
+        val noticeListDto = noticeService.getAllNotices(memberId)
         val noticeListResponse = noticeListDto.map {
             it.toResponse()
         }
