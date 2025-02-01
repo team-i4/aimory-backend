@@ -1,10 +1,12 @@
 package com.aimory.service
 
 import com.aimory.exception.CenterNotFoundException
+import com.aimory.exception.MemberNotBelongToCenterException
 import com.aimory.exception.MemberNotFoundException
 import com.aimory.exception.NoticeNotFoundException
 import com.aimory.model.Center
 import com.aimory.model.Member
+import com.aimory.model.Notice
 import com.aimory.repository.CenterRepository
 import com.aimory.repository.MemberRepository
 import com.aimory.repository.NoticeRepository
@@ -69,10 +71,10 @@ class NoticeService(
         noticeId: Long,
         noticeRequestDto: NoticeRequestDto,
     ): NoticeResponseDto {
-        val notice = noticeRepository.findById(noticeId)
-            .orElseThrow {
-                NoticeNotFoundException()
-            }
+        val member = checkMemberExists(memberId)
+        val center = checkCenterExists(member.centerId)
+        val notice = checkNoticeExists(noticeId)
+        checkMemberBelongsToCenter(member, notice)
         notice.update(noticeRequestDto)
         return notice.toResponseDto()
     }
@@ -115,5 +117,25 @@ class NoticeService(
                 CenterNotFoundException()
             }
         return center
+    }
+
+    /**
+     * 공지사항 존재 여부 확인
+     */
+    private fun checkNoticeExists(noticeId: Long): Notice {
+        val notice = noticeRepository.findById(noticeId)
+            .orElseThrow {
+                NoticeNotFoundException()
+            }
+        return notice
+    }
+
+    /**
+     * 공지사항의 어린이집과 사용자의 어린이집 일치 여부 확인
+     */
+    private fun checkMemberBelongsToCenter(member: Member, notice: Notice) {
+        if (member.centerId != notice.center.id) {
+            throw MemberNotBelongToCenterException()
+        }
     }
 }

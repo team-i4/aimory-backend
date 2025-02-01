@@ -64,6 +64,7 @@ class SecurityConfig(
                 authorize("/v3/api-docs/**", permitAll)
                 authorize("/h2-console/**", permitAll)
                 authorize(HttpMethod.POST, "/notices/**", hasRole(Role.TEACHER.name))
+                authorize(HttpMethod.PUT, "/notices/**", hasRole(Role.TEACHER.name))
                 authorize("**", authenticated)
             }
             sessionManagement {
