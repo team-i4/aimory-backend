@@ -31,8 +31,8 @@ class NoticeService(
      */
     fun getAllNotices():
         List<NoticeResponseDto> {
-        val noticeList = noticeRepository.findAll()
-        return noticeList.map {
+        val notices = noticeRepository.findAll()
+        return notices.map {
             it.toResponseDto()
         }
     }
@@ -71,14 +71,16 @@ class NoticeService(
      */
     @Transactional
     fun deleteNotices(
-        noticeIdList: List<Long>,
-    ): DeleteResponseDto {
-        noticeIdList.forEach {
+        noticeIds: List<Long>,
+    ): List<Long> {
+        val deleteNoticeIds = mutableListOf<Long>()
+        noticeIds.forEach {
             val notice = noticeRepository.findById(it).orElseThrow {
                 NoticeNotFoundException()
             }
             noticeRepository.deleteById(notice.id)
+            deleteNoticeIds.add(notice.id)
         }
-        return DeleteResponseDto("성공적으로 삭제되었습니다.")
+        return deleteNoticeIds
     }
 }

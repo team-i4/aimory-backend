@@ -1,13 +1,13 @@
 package com.aimory.controller
 
 import com.aimory.controller.dto.DeleteRequest
+import com.aimory.controller.dto.DeleteResponse
 import com.aimory.controller.dto.NoticeListResponse
 import com.aimory.controller.dto.NoticeRequest
 import com.aimory.controller.dto.NoticeResponse
 import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
 import com.aimory.service.NoticeService
-import com.aimory.service.dto.DeleteResponseDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
@@ -88,7 +88,8 @@ class NoticeController(
     @Operation(summary = "공지사항 삭제 API")
     fun deleteNotices(
         @RequestBody deleteRequest: DeleteRequest,
-    ): DeleteResponseDto {
-        return noticeService.deleteNotices(deleteRequest.data)
+    ): DeleteResponse {
+        val deleteNoticeIds = noticeService.deleteNotices(deleteRequest.data)
+        return DeleteResponse(deleteNoticeIds)
     }
 }
