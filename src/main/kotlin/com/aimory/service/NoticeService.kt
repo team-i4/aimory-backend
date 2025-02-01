@@ -40,6 +40,7 @@ class NoticeService(
         val center = checkCenterExists(member.centerId)
         val notice = noticeRepository.save(noticeRequestDto.toEntity(center))
 
+        // S3에 이미지 올리기
         images?.forEach {
             val imageUrl = s3Service.uploadFile(it)
             val noticeImage = NoticeImage(
@@ -109,6 +110,13 @@ class NoticeService(
         noticeIds.forEach {
             val notice = checkNoticeExists(it)
             checkMemberBelongsToCenter(member, notice)
+
+            // S3에 저장되어 있는 이미지 삭제
+            val imageUrls = notice.noticeImages.map {
+                it.imageUrl
+            }
+            s3Service.deleteFiles(imageUrls)
+
             noticeRepository.deleteById(notice.id)
             deleteNoticeIds.add(notice.id)
         }
