@@ -55,6 +55,10 @@ class Notice(
     var noticeImages: MutableList<NoticeImage> = mutableListOf()
         protected set
 
+    fun addImage(noticeImage: NoticeImage) {
+        noticeImages.add(noticeImage)
+    }
+
     fun update(noticeRequestDto: NoticeRequestDto) {
         this.title = noticeRequestDto.title
         this.content = noticeRequestDto.content

@@ -7,6 +7,7 @@ import com.aimory.exception.NoticeNotFoundException
 import com.aimory.model.Center
 import com.aimory.model.Member
 import com.aimory.model.Notice
+import com.aimory.model.NoticeImage
 import com.aimory.repository.CenterRepository
 import com.aimory.repository.MemberRepository
 import com.aimory.repository.NoticeRepository
@@ -16,6 +17,7 @@ import com.aimory.service.dto.toEntity
 import com.aimory.service.dto.toResponseDto
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional(readOnly = true)
@@ -23,6 +25,7 @@ class NoticeService(
     private val noticeRepository: NoticeRepository,
     private val memberRepository: MemberRepository,
     private val centerRepository: CenterRepository,
+    private val s3Service: S3Service,
 ) {
     /**
      * 공지사항 생성
@@ -30,11 +33,22 @@ class NoticeService(
     @Transactional
     fun createNotice(
         memberId: Long,
+        images: List<MultipartFile>?,
         noticeRequestDto: NoticeRequestDto,
     ): NoticeResponseDto {
         val member = checkMemberExists(memberId)
         val center = checkCenterExists(member.centerId)
         val notice = noticeRepository.save(noticeRequestDto.toEntity(center))
+
+        images?.forEach {
+            val imageUrl = s3Service.uploadFile(it)
+            val noticeImage = NoticeImage(
+                imageUrl = imageUrl,
+                notice = notice
+            )
+            notice.addImage(noticeImage)
+        }
+
         return notice.toResponseDto()
     }
 

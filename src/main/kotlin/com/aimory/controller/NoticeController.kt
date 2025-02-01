@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,8 +21,10 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @SecurityRequirement(name = "api_key")
@@ -32,15 +35,16 @@ class NoticeController(
     /**
      * 공지사항 생성
      */
-    @PostMapping("/notices")
+    @PostMapping("/notices", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "공지사항 생성 API")
     fun createNotice(
         @AuthenticationPrincipal authentication: JwtAuthentication,
-        @RequestBody noticeRequest: NoticeRequest,
+        @RequestPart("images", required = false) images: List<MultipartFile>?,
+        @RequestPart("data") noticeRequest: NoticeRequest,
     ): NoticeResponse {
         val memberId = authentication.id
-        val noticeDto = noticeService.createNotice(memberId, noticeRequest.toRequestDto())
+        val noticeDto = noticeService.createNotice(memberId, images, noticeRequest.toRequestDto())
         return noticeDto.toResponse()
     }
 
