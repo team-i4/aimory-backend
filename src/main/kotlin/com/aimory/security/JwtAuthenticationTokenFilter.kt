@@ -1,5 +1,6 @@
 package com.aimory.security
 
+import com.aimory.enums.Role
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
@@ -41,9 +42,10 @@ class JwtAuthenticationTokenFilter(
                     val email: String? = claims.email
 
                     val authorities = obtainAuthorities(claims)
-                    if (userKey != null && !name.isNullOrBlank() && !email.isNullOrBlank()) {
+                    val role = Role.getRole(authorities[0]?.authority)
+                    if (userKey != null && !name.isNullOrBlank() && !email.isNullOrBlank() && role != null) {
                         val authentication =
-                            JwtAuthenticationToken(JwtAuthentication(userKey, name, email), null, authorities)
+                            JwtAuthenticationToken(JwtAuthentication(userKey, name, email, role), null, authorities)
                         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
                         SecurityContextHolder.getContext().authentication = authentication
                     }
