@@ -68,9 +68,11 @@ class NoticeController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "공지사항 단일 조회 API")
     fun getDetailNotice(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
         @PathVariable noticeId: Long,
     ): NoticeResponse {
-        val noticeDto = noticeService.getDetailNotice(noticeId)
+        val memberId = authentication.id
+        val noticeDto = noticeService.getDetailNotice(memberId, noticeId)
         return noticeDto.toResponse()
     }
 

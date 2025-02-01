@@ -55,12 +55,12 @@ class NoticeService(
      * 공지사항 단일 조회
      */
     fun getDetailNotice(
+        memberId: Long,
         noticeId: Long,
     ): NoticeResponseDto {
-        val notice = noticeRepository.findById(noticeId)
-            .orElseThrow {
-                NoticeNotFoundException()
-            }
+        val member = checkMemberExists(memberId)
+        val notice = checkNoticeExists(noticeId)
+        checkMemberBelongsToCenter(member, notice)
         return notice.toResponseDto()
     }
 
