@@ -10,9 +10,6 @@ interface PhotoRepository : JpaRepository<Photo, Long> {
 
     fun findByChildId(childId: Long): List<Photo>
 
-    @Query("SELECT COUNT(p) FROM Photo p WHERE p.child.id = :childId")
-    fun countByChildId(childId: Long): Int
-
     @Query("SELECT p FROM Photo p WHERE p.child.id IN :childIds")
     fun findAllByChildIds(childIds: List<Long>): List<Photo>
 }
