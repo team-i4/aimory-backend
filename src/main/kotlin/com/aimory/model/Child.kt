@@ -1,5 +1,6 @@
 package com.aimory.model
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.ConstraintMode
 import jakarta.persistence.Entity
@@ -10,6 +11,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 
 @Entity
@@ -35,6 +37,10 @@ class Child(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classroom_id", nullable = false)
     var classroom: Classroom = classroom
+        protected set
+
+    @OneToMany(mappedBy = "child", orphanRemoval = true, cascade = [CascadeType.ALL])
+    var notes: MutableList<Note> = mutableListOf()
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
