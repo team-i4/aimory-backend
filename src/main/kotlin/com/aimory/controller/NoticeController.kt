@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@SecurityRequirement(name = "api_key")
+@SecurityRequirement(name = "Authorization")
 @Tag(name = "notices", description = "공지사항 API")
 class NoticeController(
     private val noticeService: NoticeService,
