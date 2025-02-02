@@ -1,10 +1,17 @@
 package com.aimory.service
 
+import com.aimory.exception.ChildIdNotFoundException
+import com.aimory.exception.ChildNotBelongToTeacherCenterException
 import com.aimory.exception.CreateImageFailException
 import com.aimory.exception.NoteNotFoundException
 import com.aimory.exception.OpenAIApiRequestException
+import com.aimory.exception.TeacherClassroomNotFoundException
+import com.aimory.exception.TeacherNotFoundException
+import com.aimory.model.Child
+import com.aimory.model.Teacher
+import com.aimory.repository.ChildRepository
 import com.aimory.repository.NoteRepository
-import com.aimory.service.dto.DeleteResponseDto
+import com.aimory.repository.TeacherRepository
 import com.aimory.service.dto.NoteImageRequestDto
 import com.aimory.service.dto.NoteRequestDto
 import com.aimory.service.dto.NoteResponseDto
@@ -20,6 +27,8 @@ import reactor.core.publisher.Mono
 @Transactional(readOnly = true)
 class NoteService(
     private val noteRepository: NoteRepository,
+    private val childRepository: ChildRepository,
+    private val teacherRepository: TeacherRepository,
     private val webClient: WebClient,
     @Value("\${openai.model}") private val model: String,
 ) {
@@ -28,9 +37,14 @@ class NoteService(
      */
     @Transactional
     fun createNote(
+        memberId: Long,
         noteRequestDto: NoteRequestDto,
     ): NoteResponseDto {
-        val note = noteRepository.save(noteRequestDto.toEntity())
+        val teacher = checkTeacherExists(memberId)
+        val child = checkChildExists(noteRequestDto.childId)
+        checkChildBelongToTeacherCenter(child, teacher)
+        checkChildBelongToTeacherClassroom(child, teacher)
+        val note = noteRepository.save(noteRequestDto.toEntity(child))
         return note.toResponseDto()
     }
 
@@ -128,5 +142,47 @@ class NoteService(
                     else -> OpenAIApiRequestException()
                 }
             }
+    }
+
+    /**
+     * 원아 존재 여부 확인
+     */
+    private fun checkChildExists(childId: Long): Child {
+        val child = childRepository.findById(childId)
+            .orElseThrow {
+                // todo: 일관된 예외 정의 필요 (ChildNotFoundException)
+                ChildIdNotFoundException()
+            }
+        return child
+    }
+
+    /**
+     * 선생님 존재 여부 확인
+     */
+    private fun checkTeacherExists(memberId: Long): Teacher {
+        return teacherRepository.findById(memberId)
+            .orElseThrow {
+                TeacherNotFoundException()
+            }
+    }
+
+    /**
+     * 요청된 원아의 어린이집과 선생님의 어린이집 일치 여부 확인
+     */
+    private fun checkChildBelongToTeacherCenter(child: Child, teacher: Teacher) {
+        if (child.parent.centerId != teacher.centerId) {
+            throw ChildNotBelongToTeacherCenterException()
+        }
+    }
+
+    /**
+     * 요청된 원아의 반과 선생님의 반 일치 여부 확인
+     */
+    private fun checkChildBelongToTeacherClassroom(child: Child, teacher: Teacher) {
+        val teacherClassroomId = teacher.classroom?.id
+            ?: throw TeacherClassroomNotFoundException()
+        if (child.classroom.id != teacherClassroomId) {
+            throw ChildNotBelongToTeacherCenterException()
+        }
     }
 }

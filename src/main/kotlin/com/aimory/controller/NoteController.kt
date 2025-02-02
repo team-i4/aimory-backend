@@ -9,11 +9,12 @@ import com.aimory.controller.dto.NoteRequest
 import com.aimory.controller.dto.NoteResponse
 import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
+import com.aimory.security.JwtAuthentication
 import com.aimory.service.NoteService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.hibernate.sql.Delete
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -36,9 +37,11 @@ class NoteController(
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "알림장 생성 API")
     fun createNote(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
         @RequestBody noteRequest: NoteRequest,
     ): NoteResponse {
-        val noteDto = noteService.createNote(noteRequest.toRequestDto())
+        val memberId = authentication.id
+        val noteDto = noteService.createNote(memberId, noteRequest.toRequestDto())
         return noteDto.toResponse()
     }
 

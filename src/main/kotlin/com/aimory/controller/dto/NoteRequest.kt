@@ -4,11 +4,13 @@ import com.aimory.service.dto.NoteRequestDto
 import java.time.LocalDate
 
 data class NoteRequest(
+    val childId: Long,
     val content: String,
     val date: LocalDate,
 )
 
 fun NoteRequest.toRequestDto() = NoteRequestDto(
+    childId = childId,
     content = content,
     date = date
 )
