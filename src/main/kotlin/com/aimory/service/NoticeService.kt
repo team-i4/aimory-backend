@@ -4,7 +4,6 @@ import com.aimory.exception.CenterNotFoundException
 import com.aimory.exception.MemberNotBelongToCenterException
 import com.aimory.exception.MemberNotFoundException
 import com.aimory.exception.NoticeNotFoundException
-import com.aimory.model.Center
 import com.aimory.model.Member
 import com.aimory.model.Notice
 import com.aimory.model.NoticeImage
@@ -37,7 +36,10 @@ class NoticeService(
         noticeRequestDto: NoticeRequestDto,
     ): NoticeResponseDto {
         val member = checkMemberExists(memberId)
-        val center = checkCenterExists(member.centerId)
+        val center = centerRepository.findById(member.centerId)
+                .orElseThrow {
+                    CenterNotFoundException()
+                }
         val notice = noticeRepository.save(noticeRequestDto.toEntity(center))
 
         // S3에 이미지 올리기
@@ -89,7 +91,6 @@ class NoticeService(
         noticeRequestDto: NoticeRequestDto,
     ): NoticeResponseDto {
         val member = checkMemberExists(memberId)
-        val center = checkCenterExists(member.centerId)
         val notice = checkNoticeExists(noticeId)
         checkMemberBelongsToCenter(member, notice)
         notice.update(noticeRequestDto)
@@ -105,7 +106,6 @@ class NoticeService(
         noticeIds: List<Long>,
     ): List<Long> {
         val member = checkMemberExists(memberId)
-        val center = checkCenterExists(member.centerId)
         val deleteNoticeIds = mutableListOf<Long>()
         noticeIds.forEach {
             val notice = checkNoticeExists(it)
@@ -132,17 +132,6 @@ class NoticeService(
                 MemberNotFoundException()
             }
         return member
-    }
-
-    /**
-     * 어린이집 존재 여부 확인
-     */
-    private fun checkCenterExists(centerId: Long): Center {
-        val center = centerRepository.findById(centerId)
-            .orElseThrow {
-                CenterNotFoundException()
-            }
-        return center
     }
 
     /**
