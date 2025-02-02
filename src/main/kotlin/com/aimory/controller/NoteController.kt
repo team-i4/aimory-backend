@@ -96,9 +96,11 @@ class NoteController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "알림장 삭제 API")
     fun deleteNotes(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
         @RequestBody deleteRequest: DeleteRequest,
     ): DeleteResponse {
-        val deleteNoteIds = noteService.deleteNotes(deleteRequest.data)
+        val memberId = authentication.id
+        val deleteNoteIds = noteService.deleteNotes(memberId, deleteRequest.data)
         return DeleteResponse(deleteNoteIds)
     }
 

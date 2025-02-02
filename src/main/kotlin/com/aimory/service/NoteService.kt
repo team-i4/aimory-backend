@@ -94,13 +94,14 @@ class NoteService(
      */
     @Transactional
     fun deleteNotes(
+        memberId: Long,
         noteIdList: List<Long>,
     ): List<Long> {
+        val teacher = checkTeacherExists(memberId)
         val deleteNoteIds = mutableListOf<Long>()
         noteIdList.forEach {
-            val note = noteRepository.findById(it).orElseThrow {
-                NoteNotFoundException()
-            }
+            val note = checkNoteExists(it)
+            checkChildBelongToTeacherClassroom(note.child, teacher)
             noteRepository.deleteById(note.id)
             deleteNoteIds.add(note.id)
         }
