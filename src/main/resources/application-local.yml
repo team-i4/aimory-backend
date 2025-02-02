@@ -13,7 +13,7 @@ spring:
         format_sql: true
 
 jwt:
-  header: api_key
+  header: Authorization
   issuer: aimory_server
   clientSecret: YWltb3J5IHNlY3JldCBjbGllbnQgdGVzdCBrZXk=
   expirySeconds: 3600
