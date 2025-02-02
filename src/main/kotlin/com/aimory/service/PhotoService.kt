@@ -11,7 +11,6 @@ import com.aimory.model.Child
 import com.aimory.model.Photo
 import com.aimory.repository.ChildRepository
 import com.aimory.repository.PhotoRepository
-import com.aimory.security.JwtAuthentication
 import com.aimory.service.dto.PhotoResponseDto
 import com.aimory.service.dto.toResponseDto
 import com.aimory.service.dto.toResponseDtoList
@@ -46,20 +45,20 @@ class PhotoService(
         return photos.toResponseDtoList()
     }
 
-    fun getDetailPhoto(authentication: JwtAuthentication, photoId: Long): PhotoResponseDto {
+    fun getDetailPhoto(memberId: Long, memberRole: Role, photoId: Long): PhotoResponseDto {
         val photo = photoRepository.findById(photoId)
             .orElseThrow { PhotoNotFoundException() }
 
-        checkParentCanAccessPhoto(authentication, photo)
+        checkParentCanAccessPhoto(memberId, memberRole, photo)
 
         return photo.toResponseDto()
     }
 
-    fun getPhotosByChildId(authentication: JwtAuthentication, childId: Long): List<PhotoResponseDto> {
+    fun getPhotosByChildId(memberId: Long, memberRole: Role, childId: Long): List<PhotoResponseDto> {
         val child = childRepository.findById(childId)
             .orElseThrow { ChildNotFoundException() }
 
-        checkParentCanAccessChild(authentication, child)
+        checkParentCanAccessChild(memberId, memberRole, child)
 
         return photoRepository.findByChildId(childId).toResponseDtoList()
     }
@@ -102,14 +101,14 @@ class PhotoService(
         return foundChildIds.toList()
     }
 
-    private fun checkParentCanAccessPhoto(authentication: JwtAuthentication, photo: Photo) {
-        if (authentication.role == Role.PARENT && photo.child.parent.id != authentication.id) {
+    private fun checkParentCanAccessPhoto(memberId: Long, memberRole: Role, photo: Photo) {
+        if (memberRole == Role.PARENT && photo.child.parent.id != memberId) {
             throw MemberCannotAccessPhotoException()
         }
     }
 
-    private fun checkParentCanAccessChild(authentication: JwtAuthentication, child: Child) {
-        if (authentication.role == Role.PARENT && child.parent.id != authentication.id) {
+    private fun checkParentCanAccessChild(memberId: Long, memberRole: Role, child: Child) {
+        if (memberRole == Role.PARENT && child.parent.id != memberId) {
             throw MemberCannotAccessChildException()
         }
     }

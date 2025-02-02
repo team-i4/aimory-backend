@@ -59,7 +59,9 @@ class PhotoController(
         @AuthenticationPrincipal authentication: JwtAuthentication,
         @PathVariable photoId: Long,
     ): PhotoResponse {
-        val photoDto = photoService.getDetailPhoto(authentication, photoId)
+        val memberId = authentication.id
+        val memberRole = authentication.role
+        val photoDto = photoService.getDetailPhoto(memberId, memberRole, photoId)
         return photoDto.toResponse()
     }
 
@@ -70,7 +72,9 @@ class PhotoController(
         @AuthenticationPrincipal authentication: JwtAuthentication,
         @RequestParam("childId") childId: Long,
     ): PhotoListResponse {
-        val photoListDto = photoService.getPhotosByChildId(authentication, childId)
+        val memberId = authentication.id
+        val memberRole = authentication.role
+        val photoListDto = photoService.getPhotosByChildId(memberId, memberRole, childId)
         val photoCount = photoListDto.size
         val photoListResponse = photoListDto.map { it.toResponse() }
 
