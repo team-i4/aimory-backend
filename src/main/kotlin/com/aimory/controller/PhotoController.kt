@@ -8,9 +8,11 @@ import com.aimory.controller.dto.PhotoResponse
 import com.aimory.controller.dto.toResponse
 import com.aimory.exception.InvalidChildIdException
 import com.aimory.exception.InvalidPhotoUploadException
+import com.aimory.security.JwtAuthentication
 import com.aimory.service.PhotoService
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -54,9 +56,10 @@ class PhotoController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "단일 사진 조회 API")
     fun getDetailPhoto(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
         @PathVariable photoId: Long,
     ): PhotoResponse {
-        val photoDto = photoService.getDetailPhoto(photoId)
+        val photoDto = photoService.getDetailPhoto(authentication, photoId)
         return photoDto.toResponse()
     }
 
@@ -64,9 +67,10 @@ class PhotoController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "특정 원아 사진 조회 API")
     fun getPhotosByChildId(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
         @RequestParam("childId") childId: Long,
     ): PhotoListResponse {
-        val photoListDto = photoService.getPhotosByChildId(childId)
+        val photoListDto = photoService.getPhotosByChildId(authentication, childId)
         val photoCount = photoListDto.size
         val photoListResponse = photoListDto.map { it.toResponse() }
 

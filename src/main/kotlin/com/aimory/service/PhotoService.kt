@@ -4,8 +4,10 @@ import com.aimory.enums.Role
 import com.aimory.exception.ChildNotFoundException
 import com.aimory.exception.EmptyChildIdListException
 import com.aimory.exception.EmptyPhotoIdListException
+import com.aimory.exception.MemberCannotAccessChildException
+import com.aimory.exception.MemberCannotAccessPhotoException
 import com.aimory.exception.PhotoNotFoundException
-import com.aimory.exception.UnauthorizedException
+import com.aimory.model.Child
 import com.aimory.model.Photo
 import com.aimory.repository.ChildRepository
 import com.aimory.repository.PhotoRepository
@@ -13,7 +15,6 @@ import com.aimory.security.JwtAuthentication
 import com.aimory.service.dto.PhotoResponseDto
 import com.aimory.service.dto.toResponseDto
 import com.aimory.service.dto.toResponseDtoList
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -45,30 +46,20 @@ class PhotoService(
         return photos.toResponseDtoList()
     }
 
-    fun getDetailPhoto(photoId: Long): PhotoResponseDto {
-        val authentication = SecurityContextHolder.getContext().authentication
-        val authUser = authentication.principal as JwtAuthentication
-
+    fun getDetailPhoto(authentication: JwtAuthentication, photoId: Long): PhotoResponseDto {
         val photo = photoRepository.findById(photoId)
             .orElseThrow { PhotoNotFoundException() }
 
-        if (authUser.role == Role.PARENT && photo.child.parent.id != authUser.id) {
-            throw UnauthorizedException("해당 사진에 접근할 수 없습니다.")
-        }
+        checkParentCanAccessPhoto(authentication, photo)
 
         return photo.toResponseDto()
     }
 
-    fun getPhotosByChildId(childId: Long): List<PhotoResponseDto> {
-        val authentication = SecurityContextHolder.getContext().authentication
-        val authUser = authentication.principal as JwtAuthentication
-
+    fun getPhotosByChildId(authentication: JwtAuthentication, childId: Long): List<PhotoResponseDto> {
         val child = childRepository.findById(childId)
             .orElseThrow { ChildNotFoundException() }
 
-        if (authUser.role == Role.PARENT && child.parent.id != authUser.id) {
-            throw UnauthorizedException("해당 원아의 사진을 조회할 수 없습니다.")
-        }
+        checkParentCanAccessChild(authentication, child)
 
         return photoRepository.findByChildId(childId).toResponseDtoList()
     }
@@ -109,5 +100,17 @@ class PhotoService(
         photoRepository.deleteAll(photos)
 
         return foundChildIds.toList()
+    }
+
+    private fun checkParentCanAccessPhoto(authentication: JwtAuthentication, photo: Photo) {
+        if (authentication.role == Role.PARENT && photo.child.parent.id != authentication.id) {
+            throw MemberCannotAccessPhotoException()
+        }
+    }
+
+    private fun checkParentCanAccessChild(authentication: JwtAuthentication, child: Child) {
+        if (authentication.role == Role.PARENT && child.parent.id != authentication.id) {
+            throw MemberCannotAccessChildException()
+        }
     }
 }
