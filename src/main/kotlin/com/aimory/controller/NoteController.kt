@@ -12,6 +12,7 @@ import com.aimory.controller.dto.toResponse
 import com.aimory.security.JwtAuthentication
 import com.aimory.service.NoteService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 
 @RestController
+@SecurityRequirement(name = "Authorization")
 @Tag(name = "notes", description = "알림장 API")
 class NoteController(
     private val noteService: NoteService,
@@ -67,9 +69,12 @@ class NoteController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "알림장 단일 조회 API")
     fun getDetailNote(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
         @PathVariable noteId: Long,
     ): NoteResponse {
-        val noteDto = noteService.getDetailNote(noteId)
+        val memberId = authentication.id
+        val memberRole = authentication.role
+        val noteDto = noteService.getDetailNote(memberId, memberRole, noteId)
         return noteDto.toResponse()
     }
 

@@ -37,9 +37,9 @@ class NoticeService(
     ): NoticeResponseDto {
         val member = checkMemberExists(memberId)
         val center = centerRepository.findById(member.centerId)
-                .orElseThrow {
-                    CenterNotFoundException()
-                }
+            .orElseThrow {
+                CenterNotFoundException()
+            }
         val notice = noticeRepository.save(noticeRequestDto.toEntity(center))
 
         // S3에 이미지 올리기

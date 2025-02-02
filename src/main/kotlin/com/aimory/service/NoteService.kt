@@ -1,16 +1,21 @@
 package com.aimory.service
 
+import com.aimory.enums.Role
 import com.aimory.exception.ChildIdNotFoundException
+import com.aimory.exception.ChildNotBelongToParentException
 import com.aimory.exception.ChildNotBelongToTeacherClassroomException
 import com.aimory.exception.CreateImageFailException
 import com.aimory.exception.NoteNotFoundException
 import com.aimory.exception.OpenAIApiRequestException
+import com.aimory.exception.ParentNotFoundException
 import com.aimory.exception.TeacherClassroomNotFoundException
 import com.aimory.exception.TeacherNotFoundException
 import com.aimory.model.Child
+import com.aimory.model.Member
 import com.aimory.model.Note
 import com.aimory.model.Teacher
 import com.aimory.repository.ChildRepository
+import com.aimory.repository.MemberRepository
 import com.aimory.repository.NoteRepository
 import com.aimory.repository.TeacherRepository
 import com.aimory.service.dto.NoteImageRequestDto
@@ -28,8 +33,10 @@ import reactor.core.publisher.Mono
 @Transactional(readOnly = true)
 class NoteService(
     private val noteRepository: NoteRepository,
+    private val memberRepository: MemberRepository,
     private val childRepository: ChildRepository,
     private val teacherRepository: TeacherRepository,
+    private val parentRepository: MemberRepository,
     private val webClient: WebClient,
     @Value("\${openai.model}") private val model: String,
 ) {
@@ -63,12 +70,21 @@ class NoteService(
      * 알림장 단일 조회
      */
     fun getDetailNote(
+        memberId: Long,
+        memberRole: Role,
         noteId: Long,
     ): NoteResponseDto {
-        val note = noteRepository.findById(noteId)
-            .orElseThrow {
-                NoteNotFoundException()
-            }
+        val note = checkNoteExists(noteId)
+        if (memberRole == Role.TEACHER) {
+            val teacher = checkTeacherExists(memberId)
+            checkChildBelongToTeacherClassroom(note.child, teacher)
+        } else {
+            val parent = parentRepository.findById(memberId)
+                .orElseThrow {
+                    ParentNotFoundException()
+                }
+            checkChildBelongToParent(note.child, parent)
+        }
         return note.toResponseDto()
     }
 
@@ -186,6 +202,15 @@ class NoteService(
             ?: throw TeacherClassroomNotFoundException()
         if (child.classroom.id != teacherClassroomId) {
             throw ChildNotBelongToTeacherClassroomException()
+        }
+    }
+
+    /**
+     * 요청된 원아가 부모의 자녀인지 확인
+     */
+    private fun checkChildBelongToParent(child: Child, parent: Member) {
+        if (child.parent.id != parent.id) {
+            throw ChildNotBelongToParentException()
         }
     }
 }
