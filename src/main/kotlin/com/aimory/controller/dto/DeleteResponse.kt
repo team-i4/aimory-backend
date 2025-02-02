@@ -7,3 +7,7 @@ data class DeleteChildPhotoResponse(
 data class DeletePhotoResponse(
     val deletedPhotoIds: List<Long>,
 )
+
+data class DeleteResponse(
+    val data: List<Long>,
+)

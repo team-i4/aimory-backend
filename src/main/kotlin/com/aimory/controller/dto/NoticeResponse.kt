@@ -5,6 +5,8 @@ import java.time.LocalDate
 
 data class NoticeResponse(
     val id: Long,
+    val centerId: Long,
+    val images: List<String>,
     val title: String,
     val content: String,
     val date: LocalDate,
@@ -18,6 +20,8 @@ data class NoticeListResponse(
 
 fun NoticeResponseDto.toResponse() = NoticeResponse(
     id = id,
+    centerId = centerId,
+    images = images,
     title = title,
     content = content,
     date = date,
