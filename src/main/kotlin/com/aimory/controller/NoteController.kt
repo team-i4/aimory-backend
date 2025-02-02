@@ -1,6 +1,7 @@
 package com.aimory.controller
 
 import com.aimory.controller.dto.DeleteRequest
+import com.aimory.controller.dto.DeleteResponse
 import com.aimory.controller.dto.NoteImageRequest
 import com.aimory.controller.dto.NoteImageResponse
 import com.aimory.controller.dto.NoteListResponse
@@ -9,9 +10,9 @@ import com.aimory.controller.dto.NoteResponse
 import com.aimory.controller.dto.toRequestDto
 import com.aimory.controller.dto.toResponse
 import com.aimory.service.NoteService
-import com.aimory.service.dto.DeleteResponseDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.hibernate.sql.Delete
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -91,8 +92,9 @@ class NoteController(
     @Operation(summary = "알림장 삭제 API")
     fun deleteNotes(
         @RequestBody deleteRequest: DeleteRequest,
-    ): DeleteResponseDto {
-        return noteService.deleteNotes(deleteRequest.data)
+    ): DeleteResponse {
+        val deleteNoteIds = noteService.deleteNotes(deleteRequest.data)
+        return DeleteResponse(deleteNoteIds)
     }
 
     /**

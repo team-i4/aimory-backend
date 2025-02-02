@@ -80,14 +80,16 @@ class NoteService(
     @Transactional
     fun deleteNotes(
         noteIdList: List<Long>,
-    ): DeleteResponseDto {
+    ): List<Long> {
+        val deleteNoteIds = mutableListOf<Long>()
         noteIdList.forEach {
             val note = noteRepository.findById(it).orElseThrow {
                 NoteNotFoundException()
             }
             noteRepository.deleteById(note.id)
+            deleteNoteIds.add(note.id)
         }
-        return DeleteResponseDto("성공적으로 삭제되었습니다.")
+        return deleteNoteIds
     }
 
     /**
