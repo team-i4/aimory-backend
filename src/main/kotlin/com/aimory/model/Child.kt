@@ -17,6 +17,7 @@ import jakarta.persistence.Table
 class Child(
     name: String,
     parent: Parent,
+    classroom: Classroom,
     profileImageUrl: String?,
 ) {
     @Id
@@ -29,6 +30,11 @@ class Child(
 
     @Column(name = "profile_image_url", nullable = true)
     var profileImageUrl: String? = profileImageUrl
+        protected set
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "classroom_id", nullable = false)
+    var classroom: Classroom = classroom
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)

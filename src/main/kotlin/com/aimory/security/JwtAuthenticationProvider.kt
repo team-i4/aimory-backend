@@ -29,7 +29,7 @@ class JwtAuthenticationProvider(
         try {
             val member = memberService.login(request.email, request.password)
             val authenticated = JwtAuthenticationToken(
-                JwtAuthentication(member.id, member.name, member.email),
+                JwtAuthentication(member.id, member.name, member.email, member.role),
                 null,
                 createAuthorityList(member.role.value)
             )

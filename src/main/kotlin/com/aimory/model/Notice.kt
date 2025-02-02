@@ -4,9 +4,12 @@ import com.aimory.service.dto.NoticeRequestDto
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.time.LocalDate
@@ -17,6 +20,7 @@ class Notice(
     title: String,
     content: String,
     date: LocalDate,
+    center: Center,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,9 +46,18 @@ class Notice(
     var updatedAt: LocalDate = createdAt
         protected set
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "center_id", nullable = false)
+    var center: Center = center
+        protected set
+
     @OneToMany(mappedBy = "notice", orphanRemoval = true, cascade = [CascadeType.ALL])
     var noticeImages: MutableList<NoticeImage> = mutableListOf()
         protected set
+
+    fun addImage(noticeImage: NoticeImage) {
+        noticeImages.add(noticeImage)
+    }
 
     fun update(noticeRequestDto: NoticeRequestDto) {
         this.title = noticeRequestDto.title
