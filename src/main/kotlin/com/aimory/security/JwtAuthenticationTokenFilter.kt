@@ -32,7 +32,7 @@ class JwtAuthenticationTokenFilter(
 
         if (SecurityContextHolder.getContext().authentication == null) {
             val authorizationToken = obtainAuthorizationToken(request)
-
+            log.info("authorizationToken: {}", authorizationToken)
             // JWT 값이 있으면 JWT 값을 검증한 후 인증정보를 생성하여 SecurityContextHolder 에 추가
             if (authorizationToken != null) {
                 try {
@@ -50,7 +50,7 @@ class JwtAuthenticationTokenFilter(
                         SecurityContextHolder.getContext().authentication = authentication
                     }
                 } catch (e: Exception) {
-                    log.warn("Jwt processing failed: {}", e.message)
+                    log.info("Jwt processing failed: {}", e.message)
                 }
             }
         } else {
@@ -76,6 +76,7 @@ class JwtAuthenticationTokenFilter(
 
     private fun obtainAuthorizationToken(request: HttpServletRequest): String? {
         var token: String? = request.getHeader(headerKey)
+        log.info("token : {}", token)
         if (token != null) {
             try {
                 token = URLDecoder.decode(token, "UTF-8")
