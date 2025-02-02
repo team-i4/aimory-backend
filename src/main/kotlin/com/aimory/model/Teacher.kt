@@ -4,6 +4,8 @@ import com.aimory.enums.Role
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 
 @Entity
@@ -23,5 +25,10 @@ class Teacher(
 ) {
     @Column(name = "profile_image_url", nullable = true)
     var profileImageUrl: String? = null
+        protected set
+
+    @OneToOne
+    @JoinColumn(name = "classroom_id", nullable = true, unique = true)
+    var classroom: Classroom? = null
         protected set
 }
