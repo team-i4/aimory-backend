@@ -1,13 +1,14 @@
 package com.aimory.service
 
 import com.aimory.exception.ChildIdNotFoundException
-import com.aimory.exception.ChildNotBelongToTeacherCenterException
+import com.aimory.exception.ChildNotBelongToTeacherClassroomException
 import com.aimory.exception.CreateImageFailException
 import com.aimory.exception.NoteNotFoundException
 import com.aimory.exception.OpenAIApiRequestException
 import com.aimory.exception.TeacherClassroomNotFoundException
 import com.aimory.exception.TeacherNotFoundException
 import com.aimory.model.Child
+import com.aimory.model.Note
 import com.aimory.model.Teacher
 import com.aimory.repository.ChildRepository
 import com.aimory.repository.NoteRepository
@@ -42,7 +43,6 @@ class NoteService(
     ): NoteResponseDto {
         val teacher = checkTeacherExists(memberId)
         val child = checkChildExists(noteRequestDto.childId)
-        checkChildBelongToTeacherCenter(child, teacher)
         checkChildBelongToTeacherClassroom(child, teacher)
         val note = noteRepository.save(noteRequestDto.toEntity(child))
         return note.toResponseDto()
@@ -77,14 +77,15 @@ class NoteService(
      */
     @Transactional
     fun updateNote(
+        memberId: Long,
         noteId: Long,
         noteRequestDto: NoteRequestDto,
     ): NoteResponseDto {
-        val note = noteRepository.findById(noteId)
-            .orElseThrow {
-                NoteNotFoundException()
-            }
-        note.update(noteRequestDto)
+        val teacher = checkTeacherExists(memberId)
+        val child = checkChildExists(noteRequestDto.childId)
+        val note = checkNoteExists(noteId)
+        checkChildBelongToTeacherClassroom(child, teacher)
+        note.update(child, noteRequestDto)
         return note.toResponseDto()
     }
 
@@ -167,12 +168,13 @@ class NoteService(
     }
 
     /**
-     * 요청된 원아의 어린이집과 선생님의 어린이집 일치 여부 확인
+     * 알림장 존재 여부 확인
      */
-    private fun checkChildBelongToTeacherCenter(child: Child, teacher: Teacher) {
-        if (child.parent.centerId != teacher.centerId) {
-            throw ChildNotBelongToTeacherCenterException()
-        }
+    private fun checkNoteExists(noteId: Long): Note {
+        return noteRepository.findById(noteId)
+            .orElseThrow {
+                NoteNotFoundException()
+            }
     }
 
     /**
@@ -182,7 +184,7 @@ class NoteService(
         val teacherClassroomId = teacher.classroom?.id
             ?: throw TeacherClassroomNotFoundException()
         if (child.classroom.id != teacherClassroomId) {
-            throw ChildNotBelongToTeacherCenterException()
+            throw ChildNotBelongToTeacherClassroomException()
         }
     }
 }

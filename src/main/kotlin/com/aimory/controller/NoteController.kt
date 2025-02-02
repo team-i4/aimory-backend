@@ -80,10 +80,12 @@ class NoteController(
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "알림장 수정 API")
     fun updateNote(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
         @PathVariable noteId: Long,
         @RequestBody noteRequest: NoteRequest,
     ): NoteResponse {
-        val noteDto = noteService.updateNote(noteId, noteRequest.toRequestDto())
+        val memberId = authentication.id
+        val noteDto = noteService.updateNote(memberId, noteId, noteRequest.toRequestDto())
         return noteDto.toResponse()
     }
 

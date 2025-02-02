@@ -44,7 +44,8 @@ class Note(
     var child: Child = child
         protected set
 
-    fun update(noteRequestDto: NoteRequestDto) {
+    fun update(child: Child, noteRequestDto: NoteRequestDto) {
+        this.child = child
         this.content = noteRequestDto.content
         this.date = noteRequestDto.date
         this.updatedAt = LocalDate.now()

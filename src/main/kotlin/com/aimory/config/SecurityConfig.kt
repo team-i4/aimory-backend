@@ -67,6 +67,7 @@ class SecurityConfig(
                 authorize(HttpMethod.PUT, "/notices/**", hasRole(Role.TEACHER.name))
                 authorize(HttpMethod.DELETE, "/notices/**", hasRole(Role.TEACHER.name))
                 authorize(HttpMethod.POST, "/notes/**", hasRole(Role.TEACHER.name))
+                authorize(HttpMethod.PUT, "/notes/**", hasRole(Role.TEACHER.name))
                 authorize("**", authenticated)
             }
             sessionManagement {
