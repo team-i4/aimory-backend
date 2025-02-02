@@ -33,7 +33,7 @@ class Child(
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "class_id", nullable = false)
+    @JoinColumn(name = "classroom_id", nullable = false)
     var classroom: Classroom = classroom
         protected set
 
