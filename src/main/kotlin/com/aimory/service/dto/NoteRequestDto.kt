@@ -12,6 +12,7 @@ data class NoteRequestDto(
 
 fun NoteRequestDto.toEntity(child: Child) = Note(
     child = child,
+    classroom = child.classroom,
     content = content,
     date = date
 )

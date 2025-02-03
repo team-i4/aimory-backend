@@ -18,6 +18,7 @@ class Note(
     content: String,
     date: LocalDate,
     child: Child,
+    classroom: Classroom,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +43,11 @@ class Note(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "child_id", nullable = false)
     var child: Child = child
+        protected set
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "classroom_id", nullable = false)
+    var classroom: Classroom = classroom
         protected set
 
     fun update(child: Child, noteRequestDto: NoteRequestDto) {
