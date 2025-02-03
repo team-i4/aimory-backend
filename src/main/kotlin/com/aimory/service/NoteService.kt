@@ -168,6 +168,13 @@ class NoteService(
         noteIdList.forEach {
             val note = checkNoteExists(it)
             checkChildBelongToTeacherClassroom(note.child, teacher)
+
+            // S3에 저장되어 있는 이미지 삭제
+            val imageUrls = note.noteImages.map {
+                it.imageUrl
+            }
+            s3Service.deleteFiles(imageUrls)
+
             noteRepository.deleteById(note.id)
             deleteNoteIds.add(note.id)
         }
