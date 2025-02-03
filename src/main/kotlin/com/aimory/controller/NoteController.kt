@@ -130,6 +130,7 @@ class NoteController(
      * 알림장 그림 생성
      */
     @PostMapping("/note-images")
+    @Operation(summary = "그림 일기 생성 API")
     fun generateNoteImage(
         @RequestBody noteImageRequest: NoteImageRequest,
     ): Mono<NoteImageResponse> {
