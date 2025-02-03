@@ -6,13 +6,18 @@ data class PhotoResponseDto(
     val photoId: Long,
     val imageUrl: String,
     val childId: Long,
+    val childName: String,
+    val createdAt: String,
+
 )
 
 fun Photo.toResponseDto(): PhotoResponseDto {
     return PhotoResponseDto(
         photoId = this.id,
         imageUrl = this.imageUrl,
-        childId = this.child.id
+        childId = this.child.id,
+        childName = this.child.name,
+        createdAt = this.createdAt.toString()
     )
 }
 

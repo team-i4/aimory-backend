@@ -9,6 +9,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "photo")
@@ -22,6 +23,10 @@ class Photo(
 
     @Column(name = "image_url", nullable = false)
     var imageUrl: String = imageUrl
+        protected set
+
+    @Column(name = "created_at", nullable = false)
+    var createdAt: LocalDateTime = LocalDateTime.now()
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
