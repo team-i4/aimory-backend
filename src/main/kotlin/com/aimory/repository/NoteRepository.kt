@@ -3,4 +3,7 @@ package com.aimory.repository
 import com.aimory.model.Note
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface NoteRepository : JpaRepository<Note, Long>
+interface NoteRepository : JpaRepository<Note, Long> {
+    fun findAllByChildId(childId: Long): List<Note>
+    fun findAllByClassroomId(classroomId: Long): List<Note>
+}

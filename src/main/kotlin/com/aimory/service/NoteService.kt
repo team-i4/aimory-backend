@@ -13,10 +13,11 @@ import com.aimory.exception.TeacherNotFoundException
 import com.aimory.model.Child
 import com.aimory.model.Member
 import com.aimory.model.Note
+import com.aimory.model.Parent
 import com.aimory.model.Teacher
 import com.aimory.repository.ChildRepository
-import com.aimory.repository.MemberRepository
 import com.aimory.repository.NoteRepository
+import com.aimory.repository.ParentRepository
 import com.aimory.repository.TeacherRepository
 import com.aimory.service.dto.NoteImageRequestDto
 import com.aimory.service.dto.NoteRequestDto
@@ -33,10 +34,9 @@ import reactor.core.publisher.Mono
 @Transactional(readOnly = true)
 class NoteService(
     private val noteRepository: NoteRepository,
-    private val memberRepository: MemberRepository,
     private val childRepository: ChildRepository,
     private val teacherRepository: TeacherRepository,
-    private val parentRepository: MemberRepository,
+    private val parentRepository: ParentRepository,
     private val webClient: WebClient,
     @Value("\${openai.model}") private val model: String,
 ) {
@@ -58,10 +58,28 @@ class NoteService(
     /**
      * 알림장 전체 조회
      */
-    fun getAllNotes():
-        List<NoteResponseDto> {
-        val noteList = noteRepository.findAll()
-        return noteList.map {
+    fun getAllNotes(
+        memberId: Long,
+        memberRole: Role,
+    ): List<NoteResponseDto> {
+        val teacher = checkTeacherExists(memberId)
+        val teacherClassroomId = teacher.classroom?.id
+            ?: throw TeacherClassroomNotFoundException()
+        val notes = when (memberRole) {
+            Role.TEACHER -> {
+                noteRepository.findAllByClassroomId(teacherClassroomId)
+            }
+            else -> {
+                val parent = checkParentExists(memberId)
+                val children = childRepository.findAllByParentId(parent.id)
+                children.filter {
+                    it.classroom.id == teacherClassroomId
+                }.flatMap { child ->
+                    noteRepository.findAllByChildId(child.id)
+                }
+            }
+        }
+        return notes.map {
             it.toResponseDto()
         }
     }
@@ -75,15 +93,15 @@ class NoteService(
         noteId: Long,
     ): NoteResponseDto {
         val note = checkNoteExists(noteId)
-        if (memberRole == Role.TEACHER) {
-            val teacher = checkTeacherExists(memberId)
-            checkChildBelongToTeacherClassroom(note.child, teacher)
-        } else {
-            val parent = parentRepository.findById(memberId)
-                .orElseThrow {
-                    ParentNotFoundException()
-                }
-            checkChildBelongToParent(note.child, parent)
+        when (memberRole) {
+            Role.TEACHER -> {
+                val teacher = checkTeacherExists(memberId)
+                checkChildBelongToTeacherClassroom(note.child, teacher)
+            }
+            else -> {
+                val parent = checkParentExists(memberId)
+                checkChildBelongToParent(note.child, parent)
+            }
         }
         return note.toResponseDto()
     }
@@ -181,6 +199,16 @@ class NoteService(
         return teacherRepository.findById(memberId)
             .orElseThrow {
                 TeacherNotFoundException()
+            }
+    }
+
+    /**
+     * 부모 존재 여부 확인
+     */
+    private fun checkParentExists(memberId: Long): Parent {
+        return parentRepository.findById(memberId)
+            .orElseThrow {
+                ParentNotFoundException()
             }
     }
 

@@ -53,9 +53,12 @@ class NoteController(
     @GetMapping("/notes")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "알림장 전체 조회 API")
-    fun getAllNotes():
-        NoteListResponse {
-        val noteListDto = noteService.getAllNotes()
+    fun getAllNotes(
+        @AuthenticationPrincipal authentication: JwtAuthentication,
+    ): NoteListResponse {
+        val memberId = authentication.id
+        val memberRole = authentication.role
+        val noteListDto = noteService.getAllNotes(memberId, memberRole)
         val noteListResponse = noteListDto.map {
             it.toResponse()
         }
