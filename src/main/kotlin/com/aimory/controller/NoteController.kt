@@ -14,6 +14,7 @@ import com.aimory.service.NoteService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
@@ -55,10 +57,22 @@ class NoteController(
     @Operation(summary = "알림장 전체 조회 API")
     fun getAllNotes(
         @AuthenticationPrincipal authentication: JwtAuthentication,
+        @RequestParam(defaultValue = "date") sortBy: String,
+        @RequestParam(defaultValue = "DESC") sortDirection: String,
     ): NoteListResponse {
         val memberId = authentication.id
         val memberRole = authentication.role
-        val noteListDto = noteService.getAllNotes(memberId, memberRole)
+
+        val sort = Sort.by(
+            if (sortDirection.equals("ASC", ignoreCase = true)) {
+                Sort.Direction.ASC
+            } else {
+                Sort.Direction.DESC
+            },
+            sortBy
+        )
+
+        val noteListDto = noteService.getAllNotes(memberId, memberRole, sort)
         val noteListResponse = noteListDto.map {
             it.toResponse()
         }

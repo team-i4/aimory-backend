@@ -25,6 +25,7 @@ import com.aimory.service.dto.NoteResponseDto
 import com.aimory.service.dto.toEntity
 import com.aimory.service.dto.toResponseDto
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
@@ -61,13 +62,14 @@ class NoteService(
     fun getAllNotes(
         memberId: Long,
         memberRole: Role,
+        sort: Sort,
     ): List<NoteResponseDto> {
         val teacher = checkTeacherExists(memberId)
         val teacherClassroomId = teacher.classroom?.id
             ?: throw TeacherClassroomNotFoundException()
         val notes = when (memberRole) {
             Role.TEACHER -> {
-                noteRepository.findAllByClassroomId(teacherClassroomId)
+                noteRepository.findAllByClassroomId(teacherClassroomId, sort)
             }
             else -> {
                 val parent = checkParentExists(memberId)
@@ -75,7 +77,7 @@ class NoteService(
                 children.filter {
                     it.classroom.id == teacherClassroomId
                 }.flatMap { child ->
-                    noteRepository.findAllByChildId(child.id)
+                    noteRepository.findAllByChildId(child.id, sort)
                 }
             }
         }
