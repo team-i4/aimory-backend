@@ -14,6 +14,7 @@ import com.aimory.service.dto.NoticeRequestDto
 import com.aimory.service.dto.NoticeResponseDto
 import com.aimory.service.dto.toEntity
 import com.aimory.service.dto.toResponseDto
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -60,9 +61,10 @@ class NoticeService(
      */
     fun getAllNotices(
         memberId: Long,
+        sort: Sort,
     ): List<NoticeResponseDto> {
         val member = checkMemberExists(memberId)
-        val notices = noticeRepository.findAllByCenterId(member.centerId)
+        val notices = noticeRepository.findAllByCenterId(member.centerId, sort)
         return notices.map {
             it.toResponseDto()
         }
