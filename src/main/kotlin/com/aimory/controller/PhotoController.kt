@@ -11,6 +11,7 @@ import com.aimory.exception.InvalidPhotoUploadException
 import com.aimory.security.JwtAuthentication
 import com.aimory.service.PhotoService
 import io.swagger.v3.oas.annotations.Operation
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -45,8 +46,20 @@ class PhotoController(
     @GetMapping("/photos")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "전체 사진 조회 API")
-    fun getAllPhotos(): PhotoListResponse {
-        val photoListDto = photoService.getAllPhotos()
+    fun getAllPhotos(
+        @RequestParam(defaultValue = "createdAt") sortBy: String,
+        @RequestParam(defaultValue = "DESC") sortDirection: String,
+    ): PhotoListResponse {
+        val sort = Sort.by(
+            if (sortDirection.equals("ASC", ignoreCase = true)) {
+                Sort.Direction.ASC
+            } else {
+                Sort.Direction.DESC
+            },
+            sortBy
+        )
+
+        val photoListDto = photoService.getAllPhotos(sort)
         val photoCount = photoListDto.size
         val photoListResponse = photoListDto.map { it.toResponse() }
         return PhotoListResponse(photos = photoListResponse, totalCount = photoCount)
@@ -71,10 +84,21 @@ class PhotoController(
     fun getPhotosByChildId(
         @AuthenticationPrincipal authentication: JwtAuthentication,
         @RequestParam("childId") childId: Long,
+        @RequestParam(defaultValue = "createdAt") sortBy: String,
+        @RequestParam(defaultValue = "DESC") sortDirection: String,
     ): PhotoListResponse {
         val memberId = authentication.id
         val memberRole = authentication.role
-        val photoListDto = photoService.getPhotosByChildId(memberId, memberRole, childId)
+        val sort = Sort.by(
+            if (sortDirection.equals("ASC", ignoreCase = true)) {
+                Sort.Direction.ASC
+            } else {
+                Sort.Direction.DESC
+            },
+            sortBy
+        )
+
+        val photoListDto = photoService.getPhotosByChildId(memberId, memberRole, childId, sort)
         val photoCount = photoListDto.size
         val photoListResponse = photoListDto.map { it.toResponse() }
 

@@ -6,6 +6,8 @@ data class PhotoResponse(
     val photoId: Long,
     val imageUrl: String,
     val childId: Long,
+    val childName: String,
+    val createdAt: String,
 )
 
 data class PhotoListResponse(
@@ -16,7 +18,9 @@ data class PhotoListResponse(
 fun PhotoResponseDto.toResponse() = PhotoResponse(
     photoId = photoId,
     imageUrl = imageUrl,
-    childId = childId
+    childId = childId,
+    childName = childName,
+    createdAt = createdAt
 )
 
 fun List<PhotoResponseDto>.toResponse(): List<PhotoResponse> {
