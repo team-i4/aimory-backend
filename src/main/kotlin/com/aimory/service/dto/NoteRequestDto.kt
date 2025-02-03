@@ -5,6 +5,7 @@ import com.aimory.model.Note
 import java.time.LocalDate
 
 data class NoteRequestDto(
+    val image: String?,
     val childId: Long,
     val content: String,
     val date: LocalDate,

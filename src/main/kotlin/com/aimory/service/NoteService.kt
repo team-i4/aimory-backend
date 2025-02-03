@@ -13,6 +13,7 @@ import com.aimory.exception.TeacherNotFoundException
 import com.aimory.model.Child
 import com.aimory.model.Member
 import com.aimory.model.Note
+import com.aimory.model.NoteImage
 import com.aimory.model.Parent
 import com.aimory.model.Teacher
 import com.aimory.repository.ChildRepository
@@ -30,6 +31,10 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import java.net.URL
+import java.io.ByteArrayInputStream
+import org.springframework.mock.web.MockMultipartFile
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
@@ -39,6 +44,7 @@ class NoteService(
     private val teacherRepository: TeacherRepository,
     private val parentRepository: ParentRepository,
     private val webClient: WebClient,
+    private val s3Service: S3Service,
     @Value("\${openai.model}") private val model: String,
 ) {
     /**
@@ -53,6 +59,30 @@ class NoteService(
         val child = checkChildExists(noteRequestDto.childId)
         checkChildBelongToTeacherClassroom(child, teacher)
         val note = noteRepository.save(noteRequestDto.toEntity(child))
+
+        if (noteRequestDto.image != null) {
+            // OpenAI에서 생성된 이미지 다운로드
+            val imageBytes = URL(noteRequestDto.image).openStream().use {
+                it.readBytes()
+            }
+
+            // ByteArray를 MultipartFile로 변환
+            val multipartFile = MockMultipartFile(
+                UUID.randomUUID().toString(), // 파라미터 이름
+                UUID.randomUUID().toString()  + ".jpg", // 파일 이름
+                "image/jpg", // 컨텐츠 타입
+                ByteArrayInputStream(imageBytes) // 파일 내용
+            )
+
+            // S3에 이미지 올리기
+            val imageUrl = s3Service.uploadFile(multipartFile)
+            val noteImage = NoteImage(
+                imageUrl = imageUrl,
+                note = note
+            )
+            note.addImage(noteImage)
+        }
+
         return note.toResponseDto()
     }
 

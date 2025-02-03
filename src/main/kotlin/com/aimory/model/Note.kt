@@ -1,6 +1,7 @@
 package com.aimory.model
 
 import com.aimory.service.dto.NoteRequestDto
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -9,6 +10,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.time.LocalDate
 
@@ -49,6 +51,14 @@ class Note(
     @JoinColumn(name = "classroom_id", nullable = false)
     var classroom: Classroom = classroom
         protected set
+
+    @OneToMany(mappedBy = "note", orphanRemoval = true, cascade = [CascadeType.ALL])
+    var noteImages: MutableList<NoteImage> = mutableListOf()
+        protected set
+
+    fun addImage(noteImage: NoteImage) {
+        noteImages.add(noteImage)
+    }
 
     fun update(child: Child, noteRequestDto: NoteRequestDto) {
         this.child = child
