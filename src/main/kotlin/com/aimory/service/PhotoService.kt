@@ -14,6 +14,7 @@ import com.aimory.repository.PhotoRepository
 import com.aimory.service.dto.PhotoResponseDto
 import com.aimory.service.dto.toResponseDto
 import com.aimory.service.dto.toResponseDtoList
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -40,8 +41,8 @@ class PhotoService(
         return savedPhotos.toResponseDtoList()
     }
 
-    fun getAllPhotos(): List<PhotoResponseDto> {
-        val photos = photoRepository.findAll()
+    fun getAllPhotos(sort: Sort): List<PhotoResponseDto> {
+        val photos = photoRepository.findAll(sort)
         return photos.toResponseDtoList()
     }
 
@@ -54,13 +55,13 @@ class PhotoService(
         return photo.toResponseDto()
     }
 
-    fun getPhotosByChildId(memberId: Long, memberRole: Role, childId: Long): List<PhotoResponseDto> {
+    fun getPhotosByChildId(memberId: Long, memberRole: Role, childId: Long, sort: Sort): List<PhotoResponseDto> {
         val child = childRepository.findById(childId)
             .orElseThrow { ChildNotFoundException() }
 
         checkParentCanAccessChild(memberId, memberRole, child)
 
-        return photoRepository.findByChildId(childId).toResponseDtoList()
+        return photoRepository.findByChildId(childId, sort).toResponseDtoList()
     }
 
     @Transactional
