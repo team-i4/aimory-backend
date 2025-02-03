@@ -27,13 +27,13 @@ import com.aimory.service.dto.toEntity
 import com.aimory.service.dto.toResponseDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Sort
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
-import java.net.URL
 import java.io.ByteArrayInputStream
-import org.springframework.mock.web.MockMultipartFile
+import java.net.URL
 import java.util.UUID
 
 @Service
@@ -69,7 +69,7 @@ class NoteService(
             // ByteArray를 MultipartFile로 변환
             val multipartFile = MockMultipartFile(
                 UUID.randomUUID().toString(), // 파라미터 이름
-                UUID.randomUUID().toString()  + ".jpg", // 파일 이름
+                UUID.randomUUID().toString() + ".jpg", // 파일 이름
                 "image/jpg", // 컨텐츠 타입
                 ByteArrayInputStream(imageBytes) // 파일 내용
             )
