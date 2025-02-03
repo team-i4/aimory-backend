@@ -10,7 +10,7 @@ spring:
     show-sql: false
 
 jwt:
-  header: api_key
+  header: Authorization
   issuer: aimory_server
   clientSecret: ${JWT_CLIENT_SECRET}
   expirySeconds: 3600
