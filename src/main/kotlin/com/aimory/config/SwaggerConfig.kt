@@ -1,11 +1,10 @@
 package com.aimory.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.swagger.v3.oas.models.Components
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
+import io.swagger.v3.oas.annotations.security.SecurityScheme
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
-import io.swagger.v3.oas.models.security.SecurityRequirement
-import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -14,23 +13,13 @@ import org.springframework.lang.Nullable
 import java.lang.reflect.Type
 
 @Configuration
+@SecurityScheme(name = "Authorization", type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer")
 class SwaggerConfig {
 
     @Bean
     fun openAPI(): OpenAPI {
         return OpenAPI()
             .info(configurationInfo())
-            .components(
-                Components()
-                    .addSecuritySchemes(
-                        "api_key",
-                        SecurityScheme()
-                            .type(SecurityScheme.Type.APIKEY)
-                            .`in`(SecurityScheme.In.HEADER)
-                            .name("api_key")
-                    )
-            )
-            .addSecurityItem(SecurityRequirement().addList("api_key"))
     }
 
     private fun configurationInfo(): Info {

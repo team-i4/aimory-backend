@@ -5,6 +5,10 @@ import java.time.LocalDate
 
 data class NoteResponse(
     val id: Long,
+    val childId: Long,
+    val childName: String,
+    val childClass: String,
+    val image: String?,
     val content: String,
     val date: LocalDate,
     val createdAt: LocalDate,
@@ -17,6 +21,10 @@ data class NoteListResponse(
 
 fun NoteResponseDto.toResponse() = NoteResponse(
     id = id,
+    childId = childId,
+    childName = childName,
+    childClass = childClass,
+    image = image,
     content = content,
     date = date,
     createdAt = createdAt,
