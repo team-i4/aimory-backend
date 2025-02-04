@@ -31,7 +31,7 @@ jobs:
         cloud.aws.credentials.accessKey: ${{ secrets.AWS_ACCESS_KEY }}
         cloud.aws.credentials.secretKey: ${{ secrets.AWS_SECRET_KEY }}
         cloud.aws.s3.bucketName: ${{ secrets.S3_BUCKET_NAME }}
-        openai.api.key: $${{ secrets.OPENAI_API_KEY }}
+        openai.api.key: ${{ secrets.OPENAI_API_KEY }}
 
 
     - name: Build with Gradle
