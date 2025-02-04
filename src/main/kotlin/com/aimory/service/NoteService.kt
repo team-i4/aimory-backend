@@ -45,7 +45,7 @@ class NoteService(
     private val parentRepository: ParentRepository,
     private val webClient: WebClient,
     private val s3Service: S3Service,
-    @Value("\${openai.model}") private val model: String,
+    @Value("\${openai.api.models.image}") private val model: String,
 ) {
     /**
      * 알림장 생성
@@ -190,7 +190,7 @@ class NoteService(
         // 프롬프트 정의
         val prompt =
             """
-                전달되는 텍스트 중 핵심 내용 한가지를 찾아 해당 상황에 대한 그림을 일러스트풍으로 그려 주세요. : ${noteImageRequestDto.content}
+                전달되는 텍스트 중 핵심 내용 한가지를 찾아 해당 상황에 대한 그림을 일러스트풍으로 그려 주세요.: ${noteImageRequestDto.content}
             """
 
         // 요청 데이터 설정
@@ -203,6 +203,7 @@ class NoteService(
 
         // POST 요청 생성
         return webClient.post()
+            .uri("/v1/images/generations")
             .bodyValue(request) // body에 요청 데이터 담기
             .retrieve() // 요청 전송
             .bodyToMono(Map::class.java) // 응답 처리

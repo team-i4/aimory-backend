@@ -131,7 +131,7 @@ class NoteController(
      */
     @PostMapping("/note-images")
     @Operation(summary = "그림 일기 생성 API")
-    fun generateNoteImage(
+    fun createNoteImage(
         @RequestBody noteImageRequest: NoteImageRequest,
     ): Mono<NoteImageResponse> {
         val imageUrl = noteService.createNoteImage(noteImageRequest.toRequestDto())
