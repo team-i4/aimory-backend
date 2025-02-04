@@ -19,10 +19,12 @@ jwt:
   expirySeconds: 3600
 
 openai:
-  model: dall-e-3
   api:
     key: ${OPENAI_API_KEY}
-    url: https://api.openai.com/v1/images/generations
+    url: https://api.openai.com
+    models:
+      chat: gpt-3.5-turbo
+      image: dall-e-3
 
 cloud:
   aws:
