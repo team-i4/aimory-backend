@@ -1,13 +1,16 @@
 package com.aimory.service.dto
 
+import com.aimory.enums.PhotoStatus
 import com.aimory.model.Photo
+import java.time.LocalDateTime
 
 data class PhotoResponseDto(
     val photoId: Long,
     val imageUrl: String,
-    val childId: Long,
-    val childName: String,
-    val createdAt: String,
+    val childIds: List<Long>,
+    val childNames: List<String>,
+    val createdAt: LocalDateTime,
+    val status: PhotoStatus,
 
 )
 
@@ -15,9 +18,10 @@ fun Photo.toResponseDto(): PhotoResponseDto {
     return PhotoResponseDto(
         photoId = this.id,
         imageUrl = this.imageUrl,
-        childId = this.child.id,
-        childName = this.child.name,
-        createdAt = this.createdAt.toString()
+        childIds = this.children.map { it.id },
+        childNames = this.children.map { it.name },
+        createdAt = this.createdAt,
+        status = this.status
     )
 }
 

@@ -49,6 +49,17 @@ class S3Service(
         return fileUrls
     }
 
+    fun downloadFile(fileUrl: String): ByteArray? {
+        return try {
+            val fileName = extractFileNameFromUrl(fileUrl)
+            val s3Object = amazonS3.getObject(s3Config.bucketName, fileName)
+            s3Object.objectContent.readBytes()
+        } catch (e: AmazonS3Exception) {
+            println("S3 파일 다운로드 실패 (파일 없음): ${e.message}")
+            null
+        }
+    }
+
     private fun extractFileNameFromUrl(fileUrl: String): String {
         return fileUrl.substringAfterLast("/")
     }

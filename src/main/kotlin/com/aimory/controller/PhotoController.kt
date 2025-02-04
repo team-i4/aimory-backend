@@ -1,12 +1,12 @@
 package com.aimory.controller
 
+import com.aimory.controller.dto.AssignPhotoRequest
 import com.aimory.controller.dto.DeleteChildPhotoResponse
 import com.aimory.controller.dto.DeletePhotoResponse
 import com.aimory.controller.dto.DeleteRequest
 import com.aimory.controller.dto.PhotoListResponse
 import com.aimory.controller.dto.PhotoResponse
 import com.aimory.controller.dto.toResponse
-import com.aimory.exception.InvalidChildIdException
 import com.aimory.exception.InvalidPhotoUploadException
 import com.aimory.security.JwtAuthentication
 import com.aimory.service.PhotoService
@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
@@ -32,14 +34,10 @@ class PhotoController(
     @PostMapping("/photos", consumes = ["multipart/form-data"])
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "사진 업로드 API")
-    fun createPhotos(
-        @RequestParam("files") files: List<MultipartFile>,
-        @RequestParam("childId") childId: Long,
-    ): List<PhotoResponse> {
+    fun createPhotos(@RequestPart files: List<MultipartFile>): List<PhotoResponse> {
         if (files.isEmpty()) throw InvalidPhotoUploadException()
-        if (childId <= 0) throw InvalidChildIdException()
 
-        val photoDtoList = photoService.createPhotos(files, childId)
+        val photoDtoList = photoService.createPhotos(files)
         return photoDtoList.toResponse()
     }
 
@@ -119,5 +117,35 @@ class PhotoController(
     fun deletePhotosByChildId(@RequestBody deleteRequest: DeleteRequest): DeleteChildPhotoResponse {
         val deletedChildIds = photoService.deletePhotosByChildId(deleteRequest.data)
         return DeleteChildPhotoResponse(deletedPhotosChildId = deletedChildIds)
+    }
+
+    @GetMapping("/photos/pending")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "보류된 사진 목록 조회 API")
+    fun getPendingPhotos(
+        @RequestParam(defaultValue = "createdAt") sortBy: String,
+        @RequestParam(defaultValue = "DESC") sortDirection: String,
+    ): PhotoListResponse {
+        val sort = Sort.by(
+            if (sortDirection.equals("ASC", ignoreCase = true)) {
+                Sort.Direction.ASC
+            } else {
+                Sort.Direction.DESC
+            },
+            sortBy
+        )
+
+        val pendingPhotos = photoService.getPendingPhotos(sort)
+        return PhotoListResponse(photos = pendingPhotos.toResponse(), totalCount = pendingPhotos.size)
+    }
+
+    @PutMapping("/photos/assign")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "보류된 사진을 원아에게 배정 API")
+    fun assignPhotos(
+        @RequestBody request: AssignPhotoRequest,
+    ): List<PhotoResponse> {
+        val assignedPhotos = photoService.assignPhotos(request)
+        return assignedPhotos.toResponse()
     }
 }
