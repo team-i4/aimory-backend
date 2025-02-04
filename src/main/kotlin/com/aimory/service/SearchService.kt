@@ -78,8 +78,14 @@ class SearchService(
         }
 
         // OpenAI API 요청
-        val notes = noteRepository.findAllByChildIdAndDate(parseChild?.id, parseDate).joinToString("\n") { "- ${it.content}" }
-        val notices = noticeRepository.findAllByCenterIdAndDate(centerId, parseDate).joinToString("\n") { "- ${it.content}" }
+        val notes = noteRepository.findAllByChildIdAndDate(parseChild?.id, parseDate)
+            .joinToString("\n") {
+                "- ${it.content}"
+            }
+        val notices = noticeRepository.findAllByCenterIdAndDate(centerId, parseDate)
+            .joinToString("\n") {
+                "- ${it.content}"
+            }
 
         val prompt = """
             아이 정보: ${parseChild?.name}
@@ -91,14 +97,16 @@ class SearchService(
             "${searchRequestDto.content}"
 
             답변 시 다음 지침을 따라주세요:
-            1. 해당 서비스는 어린이집에서 사용하는 서비스에요. 사용자는 선생님 혹은 아이의 학부모입니다. 서비스의 특성에 맞게 답변해주세요.
+            1. 해당 서비스는 어린이집에서 사용하는 서비스에요.
+            사용자는 선생님 혹은 아이의 학부모입니다.
+            서비스의 특성에 맞게 답변해주세요.
             2. 주어진 데이터만을 사용하여 답변하세요.
             3. 정보를 단순 나열하지 말고, 문맥에 맞게 정리하여 제시하세요.
             4. 친근하고 부드러운 말투를 사용하세요.
             5. 답변은 3-4문장 정도로 간결하게 작성하세요.
             6. 질문과 직접적으로 관련 없는 정보는 언급하지 마세요.
             7. 정보가 부족하거나 없는 경우, 솔직히 모른다고 말하세요.
-            """
+        """
 
         // 요청 데이터 설정
         val request = mapOf(
