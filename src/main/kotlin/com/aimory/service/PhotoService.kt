@@ -1,11 +1,14 @@
 package com.aimory.service
 
+import com.aimory.controller.dto.AssignPhotoRequest
+import com.aimory.enums.PhotoStatus
 import com.aimory.enums.Role
 import com.aimory.exception.ChildNotFoundException
 import com.aimory.exception.EmptyChildIdListException
 import com.aimory.exception.EmptyPhotoIdListException
 import com.aimory.exception.MemberCannotAccessChildException
 import com.aimory.exception.MemberCannotAccessPhotoException
+import com.aimory.exception.PendingPhotosNotFoundException
 import com.aimory.exception.PhotoNotFoundException
 import com.aimory.model.Child
 import com.aimory.model.Photo
@@ -25,19 +28,45 @@ class PhotoService(
     private val photoRepository: PhotoRepository,
     private val childRepository: ChildRepository,
     private val s3Service: S3Service,
+    private val rekognitionService: RekognitionService,
 ) {
 
     @Transactional
-    fun createPhotos(files: List<MultipartFile>, childId: Long): List<PhotoResponseDto> {
-        val child = childRepository.findById(childId)
-            .orElseThrow { ChildNotFoundException() }
+    fun createPhotos(files: List<MultipartFile>): List<PhotoResponseDto> {
+        val photos = mutableListOf<Photo>()
 
-        val photos = files.map { file ->
+        for (file in files) {
+            val imageBytes = file.bytes
+            val hasFace = rekognitionService.detectFaces(imageBytes)
             val imageUrl = s3Service.uploadFile(file)
-            Photo(imageUrl = imageUrl, child = child)
-        }
-        val savedPhotos = photoRepository.saveAll(photos)
 
+            if (imageUrl.isNullOrBlank()) {
+                println("업로드 실패: 파일이 S3에 저장되지 않았음.")
+                continue
+            }
+
+            val matchedChildren = if (hasFace) {
+                val matchedChildIds = findMatchingChildren(imageBytes)
+                matchedChildIds.mapNotNull { childRepository.findById(it).orElse(null) }.toMutableList()
+            } else {
+                mutableListOf()
+            }
+
+            val status = if (matchedChildren.isNotEmpty()) PhotoStatus.CONFIRMED else PhotoStatus.PENDING
+
+            val photo = Photo(imageUrl, status)
+
+            matchedChildren.forEach { photo.children.add(it) }
+
+            photos.add(photo)
+        }
+
+        if (photos.isEmpty()) {
+            println("저장할 사진이 없습니다.")
+            return emptyList()
+        }
+
+        val savedPhotos = photoRepository.saveAll(photos)
         return savedPhotos.toResponseDtoList()
     }
 
@@ -61,7 +90,7 @@ class PhotoService(
 
         checkParentCanAccessChild(memberId, memberRole, child)
 
-        return photoRepository.findByChildId(childId, sort).toResponseDtoList()
+        return photoRepository.findByChildren_Id(childId, sort).toResponseDtoList()
     }
 
     @Transactional
@@ -88,22 +117,88 @@ class PhotoService(
         if (childIds.isEmpty()) throw EmptyChildIdListException()
 
         val photos = photoRepository.findAllByChildIds(childIds)
-        val foundChildIds = photos.map { it.child.id }.toSet()
 
-        if (foundChildIds.isEmpty()) {
+        if (photos.isEmpty()) {
             throw ChildNotFoundException()
         }
 
-        val imageUrls = photos.map { it.imageUrl }
-        s3Service.deleteFiles(imageUrls)
+        photos.forEach { photo ->
+            photo.children.removeIf { it.id in childIds }
+        }
 
-        photoRepository.deleteAll(photos)
+        val orphanPhotoIds = photos
+            .filter { it.children.isEmpty() }
+            .map { it.id }
 
-        return foundChildIds.toList()
+        if (orphanPhotoIds.isNotEmpty()) {
+            photoRepository.deleteAllById(orphanPhotoIds)
+        }
+
+        return childIds
+    }
+
+    private fun findMatchingChildren(imageBytes: ByteArray): List<Long> {
+        val children = childRepository.findAll()
+        val matchedChildren = mutableListOf<Long>()
+
+        for (child in children) {
+            val profileImageBytes = child.profileImageUrl?.let { s3Service.downloadFile(it) }
+
+            if (profileImageBytes == null) {
+                println("프로필 사진이 없는 원아: ${child.id}")
+                continue
+            }
+
+            val similarity = rekognitionService.compareFaces(profileImageBytes, imageBytes)
+            if (similarity != null && similarity >= 90.0f) {
+                matchedChildren.add(child.id)
+            }
+        }
+        return matchedChildren
+    }
+
+    fun getPendingPhotos(sort: Sort): List<PhotoResponseDto> {
+        val pendingPhotos = photoRepository.findAllByStatus(PhotoStatus.PENDING, sort)
+
+        if (pendingPhotos.isEmpty()) {
+            throw PendingPhotosNotFoundException()
+        }
+
+        return pendingPhotos.toResponseDtoList()
+    }
+
+    @Transactional
+    fun assignPhotos(request: AssignPhotoRequest): List<PhotoResponseDto> {
+        val children = childRepository.findByNameIn(request.childNames)
+        if (children.isEmpty()) {
+            throw ChildNotFoundException()
+        }
+
+        val pendingPhotos = photoRepository.findByStatus(PhotoStatus.PENDING)
+
+        if (pendingPhotos.isEmpty()) {
+            throw PendingPhotosNotFoundException()
+        }
+
+        val photos = pendingPhotos.filter { it.id in request.photoIds }
+
+        if (photos.isEmpty()) {
+            throw PendingPhotosNotFoundException()
+        }
+
+        photos.forEach { photo ->
+            children.forEach { child -> photo.addChild(child) }
+            photo.changeStatus(PhotoStatus.CONFIRMED)
+        }
+
+        val savedPhotos = photoRepository.saveAll(photos)
+        return savedPhotos.toResponseDtoList()
     }
 
     private fun checkParentCanAccessPhoto(memberId: Long, memberRole: Role, photo: Photo) {
-        if (memberRole == Role.PARENT && photo.child.parent.id != memberId) {
+        val firstChild = photo.children.firstOrNull() ?: throw MemberCannotAccessPhotoException()
+
+        if (memberRole == Role.PARENT && firstChild.parent.id != memberId) {
             throw MemberCannotAccessPhotoException()
         }
     }

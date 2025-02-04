@@ -30,6 +30,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
     implementation("org.springframework:spring-test")
+    implementation("software.amazon.awssdk:rekognition:2.20.23")
 
     testImplementation("com.h2database:h2")
     runtimeOnly("com.mysql:mysql-connector-j")
