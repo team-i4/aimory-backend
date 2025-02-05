@@ -73,6 +73,7 @@ class SecurityConfig(
                 authorize("/photos/pending", hasRole(Role.TEACHER.name))
                 authorize("/photos/assign", hasRole(Role.TEACHER.name))
                 authorize(HttpMethod.DELETE, "/photos/child", hasRole(Role.TEACHER.name))
+                authorize("/teacher/**", hasRole(Role.TEACHER.name))
                 authorize("**", authenticated)
             }
             sessionManagement {

@@ -1,5 +1,6 @@
 package com.aimory.model
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -22,7 +23,11 @@ class Classroom(
     var name: String = name
         protected set
 
-    @OneToOne(mappedBy = "classroom")
+    @OneToOne(mappedBy = "classroom", cascade = [CascadeType.ALL])
     var teacher: Teacher? = teacher
         protected set
+
+    fun updateTeacher(teacher: Teacher?) {
+        this.teacher = teacher
+    }
 }
