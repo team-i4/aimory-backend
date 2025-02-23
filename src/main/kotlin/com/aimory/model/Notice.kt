@@ -30,7 +30,7 @@ class Notice(
     var title: String = title
         protected set
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     var content: String = content
         protected set
 
