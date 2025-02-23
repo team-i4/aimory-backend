@@ -21,7 +21,7 @@ class Note(
     date: LocalDate,
     child: Child,
     classroom: Classroom,
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
@@ -32,14 +32,6 @@ class Note(
 
     @Column(name = "date", nullable = false)
     var date: LocalDate = date
-        protected set
-
-    @Column(name = "created_at", nullable = false)
-    var createdAt: LocalDate = LocalDate.now()
-        protected set
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDate = createdAt
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -64,6 +56,6 @@ class Note(
         this.child = child
         this.content = noteRequestDto.content
         this.date = noteRequestDto.date
-        this.updatedAt = LocalDate.now()
+        updatedAt()
     }
 }

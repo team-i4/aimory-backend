@@ -2,6 +2,7 @@ package com.aimory.controller.dto
 
 import com.aimory.service.dto.NoticeResponseDto
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class NoticeResponse(
     val id: Long,
@@ -10,8 +11,8 @@ data class NoticeResponse(
     val title: String,
     val content: String,
     val date: LocalDate,
-    val createdAt: LocalDate,
-    val updatedAt: LocalDate,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime,
 )
 
 data class NoticeListResponse(

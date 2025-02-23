@@ -21,7 +21,7 @@ class Notice(
     content: String,
     date: LocalDate,
     center: Center,
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
@@ -36,14 +36,6 @@ class Notice(
 
     @Column(name = "date", nullable = false)
     var date: LocalDate = date
-        protected set
-
-    @Column(name = "created_at", nullable = false)
-    var createdAt: LocalDate = LocalDate.now()
-        protected set
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDate = createdAt
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -63,6 +55,6 @@ class Notice(
         this.title = noticeRequestDto.title
         this.content = noticeRequestDto.content
         this.date = noticeRequestDto.date
-        this.updatedAt = LocalDate.now()
+        updatedAt()
     }
 }
