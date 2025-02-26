@@ -173,7 +173,11 @@ class NoteService(
             val imageUrls = note.noteImages.map {
                 it.imageUrl
             }
-            s3Service.deleteFiles(imageUrls)
+
+            // 이미지가 없을 경우 고려
+            if (imageUrls.isNotEmpty()) {
+                s3Service.deleteFiles(imageUrls)
+            }
 
             noteRepository.deleteById(note.id)
             deleteNoteIds.add(note.id)
