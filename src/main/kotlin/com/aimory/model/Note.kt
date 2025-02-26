@@ -56,6 +56,6 @@ class Note(
         this.child = child
         this.content = noteRequestDto.content
         this.date = noteRequestDto.date
-        updatedAt()
+        super.updatedAt()
     }
 }

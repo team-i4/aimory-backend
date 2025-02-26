@@ -55,6 +55,6 @@ class Notice(
         this.title = noticeRequestDto.title
         this.content = noticeRequestDto.content
         this.date = noticeRequestDto.date
-        updatedAt()
+        super.updatedAt()
     }
 }
