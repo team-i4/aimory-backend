@@ -11,16 +11,14 @@ import jakarta.persistence.Table
 @Table(name = "parent")
 @DiscriminatorValue("PARENT")
 class Parent(
-    centerId: Long,
     name: String,
     email: String,
     password: String,
     children: List<Child> = emptyList(),
 ) : Member(
-    centerId,
-    name,
-    email,
-    password,
+    name = name,
+    email = email,
+    password = password,
     role = Role.PARENT
 ) {
     @OneToMany(mappedBy = "parent", orphanRemoval = true, cascade = [CascadeType.ALL])
