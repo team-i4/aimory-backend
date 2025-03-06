@@ -2,6 +2,7 @@ package com.aimory.service.dto
 
 import com.aimory.model.Notice
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class NoticeResponseDto(
     val id: Long,
@@ -10,8 +11,8 @@ data class NoticeResponseDto(
     val title: String,
     val content: String,
     val date: LocalDate,
-    val createdAt: LocalDate,
-    val updatedAt: LocalDate,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime,
 )
 
 fun Notice.toResponseDto() = NoticeResponseDto(

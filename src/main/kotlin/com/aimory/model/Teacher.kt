@@ -14,15 +14,13 @@ import jakarta.persistence.Table
 @Table(name = "teacher")
 @DiscriminatorValue("TEACHER")
 class Teacher(
-    centerId: Long,
     name: String,
     email: String,
     password: String,
 ) : Member(
-    centerId,
-    name,
-    email,
-    password,
+    name = name,
+    email = email,
+    password = password,
     role = Role.TEACHER
 ) {
     @Column(name = "profile_image_url", nullable = true)

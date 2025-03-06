@@ -1,6 +1,7 @@
 package com.aimory.service
 
 import com.aimory.enums.Role
+import com.aimory.exception.CenterNotFoundException
 import com.aimory.exception.CreateTextFailException
 import com.aimory.exception.OpenAIApiRequestException
 import com.aimory.exception.ParentNotFoundException
@@ -51,7 +52,7 @@ class SearchService(
                     }
                 val teacherClassroomId = teacher.classroom?.id
                     ?: throw TeacherClassroomNotFoundException()
-                centerId = teacher.centerId
+                centerId = teacher.centerId ?: throw CenterNotFoundException()
                 childRepository.findAllByClassroomId(teacherClassroomId)
             }
             else -> {
@@ -59,7 +60,7 @@ class SearchService(
                     .orElseThrow {
                         ParentNotFoundException()
                     }
-                centerId = parent.centerId
+                centerId = parent.centerId ?: throw CenterNotFoundException()
                 childRepository.findAllByParentId(parent.id)
             }
         }
