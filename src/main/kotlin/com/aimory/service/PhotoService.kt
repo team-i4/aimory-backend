@@ -12,7 +12,9 @@ import com.aimory.exception.PendingPhotosNotFoundException
 import com.aimory.exception.PhotoNotFoundException
 import com.aimory.model.Child
 import com.aimory.model.Photo
+import com.aimory.model.PhotoChild
 import com.aimory.repository.ChildRepository
+import com.aimory.repository.PhotoChildRepository
 import com.aimory.repository.PhotoRepository
 import com.aimory.service.dto.PhotoResponseDto
 import com.aimory.service.dto.toResponseDto
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile
 class PhotoService(
     private val photoRepository: PhotoRepository,
     private val childRepository: ChildRepository,
+    private val photoChildRepository: PhotoChildRepository,
     private val s3Service: S3Service,
     private val rekognitionService: RekognitionService,
 ) {
@@ -53,10 +56,11 @@ class PhotoService(
             }
 
             val status = if (matchedChildren.isNotEmpty()) PhotoStatus.CONFIRMED else PhotoStatus.PENDING
+            val photo = photoRepository.save(Photo(imageUrl, status))
 
-            val photo = Photo(imageUrl, status)
-
-            matchedChildren.forEach { photo.children.add(it) }
+            matchedChildren.forEach { child ->
+                photoChildRepository.save(PhotoChild(photo = photo, child = child))
+            }
 
             photos.add(photo)
         }
@@ -90,7 +94,9 @@ class PhotoService(
 
         checkParentCanAccessChild(memberId, memberRole, child)
 
-        return photoRepository.findByChildren_Id(childId, sort).toResponseDtoList()
+        return photoChildRepository.findByChildId(childId, sort)
+            .map { it.photo }
+            .toResponseDtoList()
     }
 
     @Transactional
@@ -107,6 +113,10 @@ class PhotoService(
         val imageUrls = photos.map { it.imageUrl }
         s3Service.deleteFiles(imageUrls)
 
+        photoIds.forEach { photoId ->
+            photoChildRepository.deleteByPhotoId(photoId)
+        }
+
         photoRepository.deleteAll(photos)
 
         return foundPhotoIds
@@ -116,18 +126,12 @@ class PhotoService(
     fun deletePhotosByChildId(childIds: List<Long>): List<Long> {
         if (childIds.isEmpty()) throw EmptyChildIdListException()
 
-        val photos = photoRepository.findAllByChildIds(childIds)
-
-        if (photos.isEmpty()) {
-            throw ChildNotFoundException()
+        childIds.forEach { childId ->
+            photoChildRepository.deleteByChildId(childId)
         }
 
-        photos.forEach { photo ->
-            photo.children.removeIf { it.id in childIds }
-        }
-
-        val orphanPhotoIds = photos
-            .filter { it.children.isEmpty() }
+        val orphanPhotoIds = photoRepository.findAll()
+            .filter { it.photoChildren.isEmpty() }
             .map { it.id }
 
         if (orphanPhotoIds.isNotEmpty()) {
@@ -196,7 +200,8 @@ class PhotoService(
     }
 
     private fun checkParentCanAccessPhoto(memberId: Long, memberRole: Role, photo: Photo) {
-        val firstChild = photo.children.firstOrNull() ?: throw MemberCannotAccessPhotoException()
+        val firstChild = photoChildRepository.findByPhotoId(photo.id).firstOrNull()?.child
+            ?: throw MemberCannotAccessPhotoException()
 
         if (memberRole == Role.PARENT && firstChild.parent.id != memberId) {
             throw MemberCannotAccessPhotoException()
