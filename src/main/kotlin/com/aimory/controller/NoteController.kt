@@ -50,7 +50,7 @@ class NoteController(
     }
 
     /**
-     * 알림장 조회
+     * 알림장 전체 조회
      * 키워드 검색 기능 포함
      */
     @GetMapping("/notes")
@@ -67,11 +67,15 @@ class NoteController(
 
         val sort = Sort.by(
             if (sortDirection.equals("ASC", ignoreCase = true)) {
-                Sort.Direction.ASC
+                Sort.Order.asc(sortBy)
             } else {
-                Sort.Direction.DESC
+                Sort.Order.desc(sortBy)
             },
-            sortBy
+            if (sortDirection.equals("ASC", ignoreCase = true)) {
+                Sort.Order.asc("createdAt")
+            } else {
+                Sort.Order.desc("createdAt")
+            }
         )
 
         val noteListDto = noteService.getNotes(memberId, memberRole, keyword, sort)
