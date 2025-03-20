@@ -52,12 +52,14 @@ class NoticeController(
 
     /**
      * 공지사항 전체 조회
+     * 키워드 검색 기능 포함
      */
     @GetMapping("/notices")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "공지사항 전체 조회 API")
-    fun getAllNotices(
+    fun getNotices(
         @AuthenticationPrincipal authentication: JwtAuthentication,
+        @RequestParam(required = false) keyword: String?,
         @RequestParam(defaultValue = "date") sortBy: String,
         @RequestParam(defaultValue = "DESC") sortDirection: String,
     ): NoticeListResponse {
@@ -76,7 +78,7 @@ class NoticeController(
             }
         )
 
-        val noticeListDto = noticeService.getAllNotices(memberId, sort)
+        val noticeListDto = noticeService.getNotices(memberId, keyword, sort)
         val noticeListResponse = noticeListDto.map {
             it.toResponse()
         }

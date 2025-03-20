@@ -58,13 +58,25 @@ class NoticeService(
 
     /**
      * 공지사항 전제 조회
+     * 키워드 검색 기능 포함
      */
-    fun getAllNotices(
+    fun getNotices(
         memberId: Long,
+        keyword: String?,
         sort: Sort,
     ): List<NoticeResponseDto> {
         val member = checkMemberExists(memberId)
-        val notices = noticeRepository.findAllByCenterId(member.centerId, sort)
+        val notices = if (keyword.isNullOrBlank()) {
+            noticeRepository.findAllByCenter_Id(member.centerId, sort)
+        } else {
+            noticeRepository.findByCenter_IdAndTitleContainingOrContentContaining(
+                member.centerId,
+                keyword,
+                keyword,
+                sort
+            )
+        }
+
         return notices.map {
             it.toResponseDto()
         }
