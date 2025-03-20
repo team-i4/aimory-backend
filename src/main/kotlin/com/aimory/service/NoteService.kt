@@ -88,18 +88,25 @@ class NoteService(
 
     /**
      * 알림장 전체 조회
+     * 키워드 검색 기능 포함
      */
-    fun getAllNotes(
+    fun getNotes(
         memberId: Long,
         memberRole: Role,
+        keyword: String?,
         sort: Sort,
     ): List<NoteResponseDto> {
         val teacher = checkTeacherExists(memberId)
         val teacherClassroomId = teacher.classroom?.id
             ?: throw TeacherClassroomNotFoundException()
+
         val notes = when (memberRole) {
             Role.TEACHER -> {
-                noteRepository.findAllByClassroomId(teacherClassroomId, sort)
+                if (keyword.isNullOrBlank()) {
+                    noteRepository.findAllByClassroom_Id(teacherClassroomId, sort)
+                } else {
+                    noteRepository.findByClassroom_IdAndContentContaining(teacherClassroomId, keyword, sort)
+                }
             }
             else -> {
                 val parent = checkParentExists(memberId)
@@ -107,10 +114,15 @@ class NoteService(
                 children.filter {
                     it.classroom.id == teacherClassroomId
                 }.flatMap { child ->
-                    noteRepository.findAllByChildId(child.id, sort)
+                    if (keyword.isNullOrBlank()) {
+                        noteRepository.findAllByChild_Id(child.id, sort)
+                    } else {
+                        noteRepository.findByChild_IdAndContentContaining(child.id, keyword, sort)
+                    }
                 }
             }
         }
+
         return notes.map {
             it.toResponseDto()
         }
@@ -135,6 +147,7 @@ class NoteService(
                 checkChildBelongToParent(note.child, parent)
             }
         }
+
         return note.toResponseDto()
     }
 
@@ -182,6 +195,7 @@ class NoteService(
             noteRepository.deleteById(note.id)
             deleteNoteIds.add(note.id)
         }
+
         return deleteNoteIds
     }
 
@@ -233,6 +247,7 @@ class NoteService(
                 // todo: 일관된 예외 정의 필요 (ChildNotFoundException)
                 ChildIdNotFoundException()
             }
+
         return child
     }
 

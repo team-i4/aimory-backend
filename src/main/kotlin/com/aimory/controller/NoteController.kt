@@ -50,13 +50,15 @@ class NoteController(
     }
 
     /**
-     * 알림장 전체 조회
+     * 알림장 조회
+     * 키워드 검색 기능 포함
      */
     @GetMapping("/notes")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "알림장 전체 조회 API")
-    fun getAllNotes(
+    @Operation(summary = "알림장 조회 API")
+    fun getNotes(
         @AuthenticationPrincipal authentication: JwtAuthentication,
+        @RequestParam(required = false) keyword: String?,
         @RequestParam(defaultValue = "date") sortBy: String,
         @RequestParam(defaultValue = "DESC") sortDirection: String,
     ): NoteListResponse {
@@ -72,7 +74,7 @@ class NoteController(
             sortBy
         )
 
-        val noteListDto = noteService.getAllNotes(memberId, memberRole, sort)
+        val noteListDto = noteService.getNotes(memberId, memberRole, keyword, sort)
         val noteListResponse = noteListDto.map {
             it.toResponse()
         }
