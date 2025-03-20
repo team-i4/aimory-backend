@@ -65,11 +65,15 @@ class NoticeController(
 
         val sort = Sort.by(
             if (sortDirection.equals("ASC", ignoreCase = true)) {
-                Sort.Direction.ASC
+                Sort.Order.asc(sortBy)
             } else {
-                Sort.Direction.DESC
+                Sort.Order.desc(sortBy)
             },
-            sortBy
+            if (sortDirection.equals("ASC", ignoreCase = true)) {
+                Sort.Order.asc("createdAt")
+            } else {
+                Sort.Order.desc("createdAt")
+            }
         )
 
         val noticeListDto = noticeService.getAllNotices(memberId, sort)
