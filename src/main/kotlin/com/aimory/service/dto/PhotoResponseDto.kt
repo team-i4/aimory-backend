@@ -12,7 +12,7 @@ data class PhotoResponseDto(
     val createdAt: LocalDateTime,
     val status: PhotoStatus,
 
-    )
+)
 
 fun Photo.toResponseDto(): PhotoResponseDto {
     return PhotoResponseDto(
