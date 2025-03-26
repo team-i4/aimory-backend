@@ -56,14 +56,26 @@ class NoticeService(
 
     /**
      * 공지사항 전제 조회
+     * 키워드 검색 기능 포함
      */
-    fun getAllNotices(
+    fun getNotices(
         memberId: Long,
+        keyword: String?,
         sort: Sort,
     ): List<NoticeResponseDto> {
         val member = checkMemberExists(memberId)
         val centerId = member.centerId ?: throw CenterNotFoundException()
-        val notices = noticeRepository.findAllByCenterId(centerId, sort)
+        val notices = if (keyword.isNullOrBlank()) {
+            noticeRepository.findAllByCenterId(centerId, sort)
+        } else {
+            noticeRepository.findByCenterIdAndTitleContainingOrContentContaining(
+                centerId,
+                keyword,
+                keyword,
+                sort
+            )
+        }
+
         return notices.map {
             it.toResponseDto()
         }
@@ -116,7 +128,11 @@ class NoticeService(
             val imageUrls = notice.noticeImages.map {
                 it.imageUrl
             }
-            s3Service.deleteFiles(imageUrls)
+
+            // 이미지가 없을 경우 고려
+            if (imageUrls.isNotEmpty()) {
+                s3Service.deleteFiles(imageUrls)
+            }
 
             noticeRepository.deleteById(notice.id)
             deleteNoticeIds.add(notice.id)
