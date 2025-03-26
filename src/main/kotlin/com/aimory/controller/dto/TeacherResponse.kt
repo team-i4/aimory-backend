@@ -4,7 +4,7 @@ import com.aimory.service.dto.TeacherResponseDto
 
 data class TeacherResponse(
     val id: Long,
-    val centerId: Long,
+    val centerId: Long?,
     val classroomId: Long?,
     val name: String,
     val email: String,

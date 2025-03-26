@@ -103,9 +103,9 @@ class NoteService(
         val notes = when (memberRole) {
             Role.TEACHER -> {
                 if (keyword.isNullOrBlank()) {
-                    noteRepository.findAllByClassroom_Id(teacherClassroomId, sort)
+                    noteRepository.findAllByClassroomId(teacherClassroomId, sort)
                 } else {
-                    noteRepository.findByClassroom_IdAndContentContaining(teacherClassroomId, keyword, sort)
+                    noteRepository.findByClassroomIdAndContentContaining(teacherClassroomId, keyword, sort)
                 }
             }
             else -> {
@@ -115,9 +115,9 @@ class NoteService(
                     it.classroom.id == teacherClassroomId
                 }.flatMap { child ->
                     if (keyword.isNullOrBlank()) {
-                        noteRepository.findAllByChild_Id(child.id, sort)
+                        noteRepository.findAllByChildId(child.id, sort)
                     } else {
-                        noteRepository.findByChild_IdAndContentContaining(child.id, keyword, sort)
+                        noteRepository.findByChildIdAndContentContaining(child.id, keyword, sort)
                     }
                 }
             }

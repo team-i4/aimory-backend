@@ -15,6 +15,7 @@ import com.aimory.service.dto.NoticeResponseDto
 import com.aimory.service.dto.toEntity
 import com.aimory.service.dto.toResponseDto
 import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -37,10 +38,7 @@ class NoticeService(
         noticeRequestDto: NoticeRequestDto,
     ): NoticeResponseDto {
         val member = checkMemberExists(memberId)
-        val center = centerRepository.findById(member.centerId)
-            .orElseThrow {
-                CenterNotFoundException()
-            }
+        val center = member.centerId?.let { centerRepository.findByIdOrNull(it) } ?: throw CenterNotFoundException()
         val notice = noticeRepository.save(noticeRequestDto.toEntity(center))
 
         // S3에 이미지 올리기
@@ -66,11 +64,12 @@ class NoticeService(
         sort: Sort,
     ): List<NoticeResponseDto> {
         val member = checkMemberExists(memberId)
+        val centerId = member.centerId ?: throw CenterNotFoundException()
         val notices = if (keyword.isNullOrBlank()) {
-            noticeRepository.findAllByCenter_Id(member.centerId, sort)
+            noticeRepository.findAllByCenterId(centerId, sort)
         } else {
-            noticeRepository.findByCenter_IdAndTitleContainingOrContentContaining(
-                member.centerId,
+            noticeRepository.findByCenterIdAndTitleContainingOrContentContaining(
+                centerId,
                 keyword,
                 keyword,
                 sort

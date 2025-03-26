@@ -5,19 +5,19 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface NoteRepository : JpaRepository<Note, Long> {
-    fun findByChild_IdAndContentContaining(
+    fun findByChildIdAndContentContaining(
         childId: Long,
         Keyword: String?,
         sort: Sort,
     ): List<Note>
 
-    fun findAllByChild_Id(childId: Long, sort: Sort): List<Note>
+    fun findAllByChildId(childId: Long, sort: Sort): List<Note>
 
-    fun findByClassroom_IdAndContentContaining(
+    fun findByClassroomIdAndContentContaining(
         classroomId: Long,
         keyword: String?,
         sort: Sort,
     ): List<Note>
 
-    fun findAllByClassroom_Id(classroomId: Long, sort: Sort): List<Note>
+    fun findAllByClassroomId(classroomId: Long, sort: Sort): List<Note>
 }

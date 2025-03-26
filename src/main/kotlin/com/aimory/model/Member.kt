@@ -21,7 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 @DiscriminatorColumn(name = "type")
 @Table(name = "member")
 class Member(
-    centerId: Long,
+    centerId: Long? = null,
     name: String,
     email: String,
     password: String,
@@ -31,8 +31,8 @@ class Member(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
 
-    @Column(name = "center_id", nullable = false)
-    var centerId: Long = centerId
+    @Column(name = "center_id", nullable = true)
+    var centerId: Long? = centerId
         protected set
 
     @Column(name = "name", nullable = false)
