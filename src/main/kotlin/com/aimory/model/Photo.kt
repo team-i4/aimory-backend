@@ -1,6 +1,7 @@
 package com.aimory.model
 
 import com.aimory.enums.PhotoStatus
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -8,9 +9,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.JoinTable
-import jakarta.persistence.ManyToMany
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.time.LocalDateTime
 
@@ -32,13 +31,8 @@ class Photo(
     var createdAt: LocalDateTime = LocalDateTime.now()
         protected set
 
-    @ManyToMany
-    @JoinTable(
-        name = "photo_child",
-        joinColumns = [JoinColumn(name = "photo_id")],
-        inverseJoinColumns = [JoinColumn(name = "child_id")]
-    )
-    var children: MutableList<Child> = mutableListOf()
+    @OneToMany(mappedBy = "photo", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var photoChildren: MutableList<PhotoChild> = mutableListOf()
         protected set
 
     @Enumerated(EnumType.STRING)
@@ -47,8 +41,8 @@ class Photo(
         protected set
 
     fun addChild(child: Child) {
-        if (!children.contains(child)) {
-            children.add(child)
+        if (photoChildren.none { it.child == child }) {
+            photoChildren.add(PhotoChild(photo = this, child = child))
         }
     }
 

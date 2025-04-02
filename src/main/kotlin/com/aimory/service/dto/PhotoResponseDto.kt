@@ -18,8 +18,8 @@ fun Photo.toResponseDto(): PhotoResponseDto {
     return PhotoResponseDto(
         photoId = this.id,
         imageUrl = this.imageUrl,
-        childIds = this.children.map { it.id },
-        childNames = this.children.map { it.name },
+        childIds = this.photoChildren.map { it.child.id },
+        childNames = this.photoChildren.map { it.child.name },
         createdAt = this.createdAt,
         status = this.status
     )
